@@ -1,0 +1,21 @@
+[
+  {
+    "code": "BULK",
+    "amount": 3,
+    "items": [
+      {
+        "product": "TSHIRT",
+        "price": 19
+      }
+    ]
+  },
+  {
+    "code": "ONE_FREE",
+    "items": [
+      {
+        "product": "VOUCHER",
+        "amount": 2
+      }
+    ]
+  }
+]
