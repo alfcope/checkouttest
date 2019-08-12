@@ -2,7 +2,7 @@ package errors
 
 import (
 	"fmt"
-	"github.com/alfcope/checkout/model"
+	"github.com/alfcope/checkouttest/model"
 )
 
 type ProductNotFound struct {

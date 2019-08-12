@@ -2,10 +2,10 @@ package datasource
 
 import (
 	"encoding/json"
-	"github.com/alfcope/checkout/config"
-	"github.com/alfcope/checkout/datasource/parser"
-	"github.com/alfcope/checkout/errors"
-	"github.com/alfcope/checkout/model"
+	"github.com/alfcope/checkouttest/config"
+	"github.com/alfcope/checkouttest/datasource/parser"
+	"github.com/alfcope/checkouttest/errors"
+	"github.com/alfcope/checkouttest/model"
 	"io/ioutil"
 	"log"
 	"sync"

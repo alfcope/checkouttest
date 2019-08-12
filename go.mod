@@ -1,4 +1,4 @@
-module github.com/alfcope/checkout
+module github.com/alfcope/checkouttest
 
 go 1.12
 

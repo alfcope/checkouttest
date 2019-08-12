@@ -21,16 +21,16 @@ var testCases = []struct {
 		NewBulkPromotion(map[ProductCode]int{"P1": 850}, 3),
 		0,
 		3,
-	},{
+	}, {
 		[]*Item{NewItem("P2", 1200), NewItem("P2", 1200), NewItem("P2", 1200)},
 		NewBulkPromotion(map[ProductCode]int{"P2": 1000}, 2),
 		1,
 		2,
 	}, {
 		[]*Item{NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500),
-			NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500),
-			NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500),
-			NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500),NewItem("P3", 1500)},
+			NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500),
+			NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500),
+			NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500), NewItem("P3", 1500)},
 		NewBulkPromotion(map[ProductCode]int{"P3": 1100}, 4),
 		3,
 		12,

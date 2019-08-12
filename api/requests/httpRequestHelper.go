@@ -2,7 +2,7 @@ package requests
 
 import (
 	"encoding/json"
-	"github.com/alfcope/checkout/model"
+	"github.com/alfcope/checkouttest/model"
 	"io"
 )
 

@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/alfcope/checkout/api"
-	"github.com/alfcope/checkout/config"
-	"github.com/alfcope/checkout/datasource"
-	"github.com/alfcope/checkout/pkg/logging"
-	"github.com/gorilla/mux"
+	"github.com/alfcope/checkouttest/api"
+	"github.com/alfcope/checkouttest/config"
+	"github.com/alfcope/checkouttest/datasource"
+	"github.com/alfcope/checkouttest/pkg/logging"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
@@ -32,7 +32,7 @@ func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 	}
 
 	product, _ := ds.GetProduct("VOUCHER")
-	fmt.Printf("Product: %v\n", product )
+	fmt.Printf("Product: %v\n", product)
 	promotion, _ := ds.GetPromotion("ONE_FREE")
 	fmt.Printf("Promotion: %v\n", promotion)
 

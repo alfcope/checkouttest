@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/alfcope/checkout/config"
-	"github.com/alfcope/checkout/pkg/logging"
-	"github.com/alfcope/checkout/server"
+	"github.com/alfcope/checkouttest/config"
+	"github.com/alfcope/checkouttest/pkg/logging"
+	"github.com/alfcope/checkouttest/server"
 )
 
 func main() {

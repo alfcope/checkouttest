@@ -2,7 +2,7 @@ package responses
 
 import (
 	"encoding/json"
-	"github.com/alfcope/checkout/errors"
+	"github.com/alfcope/checkouttest/errors"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )

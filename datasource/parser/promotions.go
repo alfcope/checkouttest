@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
-	"github.com/alfcope/checkout/errors"
-	"github.com/alfcope/checkout/model"
+	"github.com/alfcope/checkouttest/errors"
+	"github.com/alfcope/checkouttest/model"
 )
 
 func ParsePromotion(nodes map[string]interface{}) (model.Promotion, error) {
@@ -23,7 +23,7 @@ func ParsePromotion(nodes map[string]interface{}) (model.Promotion, error) {
 }
 
 func parseBulkPromotion(nodes map[string]interface{}) (*model.BulkPromotion, error) {
-	var items  map[model.ProductCode]int
+	var items map[model.ProductCode]int
 	amount := nodes["amount"]
 
 	rawItems := nodes["items"].([]interface{})
@@ -55,7 +55,7 @@ func parseBulkPromotion(nodes map[string]interface{}) (*model.BulkPromotion, err
 }
 
 func parseOneFreePromotion(nodes map[string]interface{}) (*model.OneFreePromotion, error) {
-	var items  map[model.ProductCode]int
+	var items map[model.ProductCode]int
 
 	rawItems := nodes["items"].([]interface{})
 	items = make(map[model.ProductCode]int, len(rawItems))

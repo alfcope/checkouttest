@@ -32,7 +32,7 @@ func newLogger() *StandardLogger {
 // Create a logger entry and add the fields method, traceId and requestId from the http request object
 func GetLoggerWithFields(r *http.Request) *logrus.Entry {
 	logger := Logger.WithFields(logrus.Fields{
-		"method":    r.Method,
+		"method": r.Method,
 		//"traceId":   r.Header.Get("x-trace-id"),
 		//"requestId": r.Header.Get("x-request-id"),
 	})

@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/alfcope/checkout/datasource"
-	"github.com/alfcope/checkout/model"
+	"github.com/alfcope/checkouttest/datasource"
+	"github.com/alfcope/checkouttest/model"
 	"github.com/google/uuid"
 )
 

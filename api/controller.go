@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/alfcope/checkout/api/requests"
-	"github.com/alfcope/checkout/api/responses"
-	"github.com/alfcope/checkout/pkg/logging"
+	"github.com/alfcope/checkouttest/api/requests"
+	"github.com/alfcope/checkouttest/api/responses"
+	"github.com/alfcope/checkouttest/pkg/logging"
 	"github.com/gorilla/mux"
 	"net/http"
 )
