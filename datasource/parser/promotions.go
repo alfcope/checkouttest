@@ -8,13 +8,11 @@ import (
 
 func ParsePromotion(nodes map[string]interface{}) (model.Promotion, error) {
 
-	//fmt.Printf("%T - %v \n", nodes, nodes)
-
 	switch nodes["code"].(string) {
 	case "BULK":
 		return parseBulkPromotion(nodes)
 
-	case "ONE_FREE":
+	case "FREE_ITEMS":
 		return parseOneFreePromotion(nodes)
 
 	default:
@@ -54,11 +52,10 @@ func parseBulkPromotion(nodes map[string]interface{}) (*model.BulkPromotion, err
 	return model.NewBulkPromotion(items, int(amount.(float64))), nil
 }
 
-func parseOneFreePromotion(nodes map[string]interface{}) (*model.OneFreePromotion, error) {
-	var items map[model.ProductCode]int
+func parseOneFreePromotion(nodes map[string]interface{}) (*model.FreeItemsPromotion, error) {
+	items := make(map[model.ProductCode][]model.FreeItemsPromoConditions)
 
 	rawItems := nodes["items"].([]interface{})
-	items = make(map[model.ProductCode]int, len(rawItems))
 
 	for _, rawItem := range rawItems {
 		if _, ok := rawItem.(map[string]interface{}); !ok {
@@ -71,17 +68,30 @@ func parseOneFreePromotion(nodes map[string]interface{}) (*model.OneFreePromotio
 			fmt.Printf("Invalid product code: %v", item["product"])
 			continue
 		}
-		if _, ok := item["amount"].(float64); !ok {
-			fmt.Printf("Invalid amount: %v", item["amount"])
+		if _, ok := item["buy"].(float64); !ok {
+			fmt.Printf("Invalid amount: %v", item["buy"])
+			continue
+		}
+		if _, ok := item["free"].(float64); !ok {
+			fmt.Printf("Invalid amount: %v", item["free"])
 			continue
 		}
 
-		items[model.ProductCode(item["product"].(string))] = int(item["amount"].(float64))
+		promoConditions := model.FreeItemsPromoConditions{
+			Buy:  int(item["buy"].(float64)),
+			Free: int(item["free"].(float64)),
+		}
+
+		if promosProducto, ok := items[model.ProductCode(item["product"].(string))]; ok {
+			items[model.ProductCode(item["product"].(string))] = append(promosProducto, promoConditions)
+		} else {
+			items[model.ProductCode(item["product"].(string))] = []model.FreeItemsPromoConditions{promoConditions}
+		}
 	}
 
 	if len(items) == 0 {
 		return nil, errors.NewPromotionInvalid(nodes["code"].(string), "empty items list")
 	}
 
-	return model.NewOneFreeProduction(items), nil
+	return model.NewFreeItemsPromotion(items), nil
 }

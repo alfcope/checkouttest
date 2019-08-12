@@ -67,21 +67,71 @@ func (b BulkPromotion) ApplyTo(basket *Basket) {
 	}
 }
 
-type OneFreePromotion struct {
+type FreeItemsPromotion struct {
 	//A map in case different bulk promotions are defined for different products
 	//Key: ProductCode
-	//Value: amount to buy
-	items map[ProductCode]int
+	//Value: slice with potentially different combinations of buy X get Y free
+	items map[ProductCode][]FreeItemsPromoConditions
 }
 
-func NewOneFreeProduction(items map[ProductCode]int) *OneFreePromotion {
-	return &OneFreePromotion{items: items}
+type FreeItemsPromoConditions struct {
+	Buy  int
+	Free int
 }
 
-func (f OneFreePromotion) GetType() PromotionType {
-	return "ONE_FREE"
+func NewFreeItemsPromotion(items map[ProductCode][]FreeItemsPromoConditions) *FreeItemsPromotion {
+	return &FreeItemsPromotion{items: items}
 }
 
-func (f OneFreePromotion) ApplyTo(basket *Basket) {
-	panic("implement me")
+func (f FreeItemsPromotion) GetType() PromotionType {
+	return "FREE_ITEMS"
+}
+
+func (f FreeItemsPromotion) ApplyTo(basket *Basket) {
+	log.Printf("--- Free Items Promotion ---")
+	for p, conditions := range f.items {
+		log.Println("\tProduct: ", p)
+
+		if bitems, ok := basket.items[p]; ok {
+			log.Printf("\tFound %v in the basket\n", len(bitems))
+
+			for _, condition := range conditions {
+				numPromoEligible := len(basket.items[p]) / condition.Buy
+
+				log.Printf("\tEnough items for %v promotions\n", numPromoEligible)
+				if numPromoEligible > 0 {
+					productPrice := basket.items[p][0].finalPrice
+
+					elements := numPromoEligible * condition.Buy
+					log.Printf("\t%v elements to move\n", elements)
+					basket.items[p] = basket.items[p][elements:]
+					log.Printf("\t%v without promotion: %v\n", p, len(basket.items[p]))
+
+					if basket.itemsInPromotion[f.GetType()] != nil {
+						log.Printf("\t%v in promotion: %v\n", p, len(*basket.itemsInPromotion[f.GetType()]))
+					}
+
+					if basket.itemsInPromotion[f.GetType()] == nil {
+						items := make([]Item, 0, elements)
+						basket.itemsInPromotion[f.GetType()] = &items
+						log.Printf("\tSlice created! %v", elements)
+					}
+
+					for i := 0; i < elements; i++ {
+						price := productPrice
+						if i < condition.Free {
+							price = 0
+						}
+
+						tmp := append(*basket.itemsInPromotion[f.GetType()], *NewItem(p, price))
+
+						log.Printf("\ttmp length: %v\n", len(tmp))
+
+						basket.itemsInPromotion[f.GetType()] = &tmp
+						log.Printf("\t%v elements remaining\n", elements-i-1)
+					}
+				}
+			}
+		}
+	}
 }

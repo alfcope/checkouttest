@@ -11,6 +11,10 @@ type NewBasketResponse struct {
 	Id string `json:"id"`
 }
 
+type PrecioBasketResponse struct {
+	Total float64 `json:"total"`
+}
+
 // Sends a response error
 func ResponseError(w http.ResponseWriter, log *logrus.Entry, status int, msg string) {
 	if msg != "" {

@@ -10,11 +10,16 @@
     ]
   },
   {
-    "code": "ONE_FREE",
+    "code": "FREE_ITEMS",
     "items": [
       {
         "product": "VOUCHER",
-        "amount": 2
+        "buy": 5,
+        "free": 3
+      },{
+        "product": "VOUCHER",
+        "buy": 2,
+        "free": 1
       }
     ]
   }

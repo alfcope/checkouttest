@@ -33,7 +33,7 @@ func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 
 	product, _ := ds.GetProduct("VOUCHER")
 	fmt.Printf("Product: %v\n", product)
-	promotion, _ := ds.GetPromotion("ONE_FREE")
+	promotion, _ := ds.GetPromotion("FREE_ITEMS")
 	fmt.Printf("Promotion: %v\n", promotion)
 
 	checkoutService := api.NewCheckoutService(*ds)
