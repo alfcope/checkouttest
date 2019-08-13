@@ -92,8 +92,16 @@ func (c *CheckoutController) AddItem() http.HandlerFunc {
 func (c *CheckoutController) GetPrecio() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.GetLoggerWithFields(r)
-		r.FormValue("price")
-		responses.Response(w, logger, http.StatusOK, responses.PrecioBasketResponse{Total:15.55})
+
+		pathParameters := mux.Vars(r)
+		basketId := pathParameters["id"]
+
+		total, err := c.checkoutService.GetBasketPrice(basketId)
+		if err != nil {
+			responses.ResponseError(w, logger, responses.GetStatusByError(err), err.Error())
+			return
+		}
+		responses.Response(w, logger, http.StatusOK, responses.PrecioBasketResponse{Total: total})
 	}
 }
 

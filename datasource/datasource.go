@@ -58,12 +58,16 @@ func (d *Datasource) GetPromotion(code model.PromotionType) (model.Promotion, er
 	return *new(model.Promotion), errors.NewPromotionNotFound(code)
 }
 
-func (d *Datasource) GetBasket(id string) (model.Basket, error) {
+func (d *Datasource) GetPromotions() map[model.PromotionType]model.Promotion {
+	return d.promotions
+}
+
+func (d *Datasource) GetBasket(id string) (*model.Basket, error) {
 	if basket, ok := d.baskets[id]; ok {
-		return basket, nil
+		return &basket, nil
 	}
 
-	return *new(model.Basket), errors.NewBasketNotFound(id)
+	return new(model.Basket), errors.NewBasketNotFound(id)
 }
 
 func (d *Datasource) AddBasket(basket *model.Basket) error {

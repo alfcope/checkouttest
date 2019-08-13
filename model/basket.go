@@ -1,8 +1,7 @@
 package model
 
 import (
-	"fmt"
-	"strconv"
+	"log"
 	"sync"
 )
 
@@ -32,7 +31,7 @@ func NewBasket(id string) *Basket {
 		Id:               id,
 		items:            make(map[ProductCode][]Item),
 		itemsInPromotion: make(map[PromotionType]*[]Item),
-		total:            -1,
+		total:            -1, //Price cache
 		RWMux:            sync.RWMutex{},
 	}
 }
@@ -42,13 +41,21 @@ func (b *Basket) AddItem(newItem *Item) {
 	defer b.RWMux.Unlock()
 
 	b.items[newItem.code] = append(b.items[newItem.code], *newItem)
+	// Expire price cache
+	b.total = -1
+}
+
+func (b *Basket) GetTotal() float64 {
+	return b.total
 }
 
 func (b *Basket) CalculatePrice() (float64, error) {
 	total := 0
 
+	log.Print("Waiting for!")
 	b.RWMux.Lock()
 	defer b.RWMux.Unlock()
+	log.Print("Lock acquired!")
 
 	if b.total > -1 {
 		return b.total, nil
@@ -68,10 +75,7 @@ func (b *Basket) CalculatePrice() (float64, error) {
 		}
 	}
 
-	totalPrice, err := strconv.ParseFloat(fmt.Sprintf("%.2f", total),64)
-	if err != nil {
-		return 0, err
-	}
+	b.total = float64(total/100)
 
-	return totalPrice, nil
+	return b.total, nil
 }
