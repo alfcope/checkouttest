@@ -1,25 +1,37 @@
 [
   {
     "code": "BULK",
-    "amount": 3,
-    "items": [
+    "promos": [
       {
         "product": "TSHIRT",
-        "price": 19
+        "rules": [
+          {
+            "buy": 3,
+            "price": 19
+          },
+          {
+            "buy": 5,
+            "price": 15
+          }
+        ]
       }
     ]
   },
   {
     "code": "FREE_ITEMS",
-    "items": [
+    "promos": [
       {
         "product": "VOUCHER",
-        "buy": 5,
-        "free": 3
-      },{
-        "product": "VOUCHER",
-        "buy": 2,
-        "free": 1
+        "rules": [
+          {
+            "buy": 5,
+            "free": 3
+          },
+          {
+            "buy": 2,
+            "free": 1
+          }
+        ]
       }
     ]
   }

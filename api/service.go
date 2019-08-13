@@ -56,9 +56,6 @@ func (c *checkoutService) GetBasketPrice(id string) (float64, error) {
 
 	promotions := c.ds.GetPromotions()
 
-	basket.RWMux.Lock()
-	defer basket.RWMux.Unlock()
-
 	if total := basket.GetTotal(); total > -1 {
 		return total, nil
 	}
@@ -67,7 +64,10 @@ func (c *checkoutService) GetBasketPrice(id string) (float64, error) {
 		promotion.ApplyTo(basket)
 	}
 
-	total, err := basket.CalculatePrice()
+	basket.RWMux.Lock()
+	defer basket.RWMux.Unlock()
+
+	total, err := basket.CalculatePrice(promotions)
 	if err != nil {
 		return 0, err
 	}

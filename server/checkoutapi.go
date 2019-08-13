@@ -28,7 +28,8 @@ func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 
 	ds, err := datasource.InitDatasource(configuration.Data)
 	if err != nil {
-		fmt.Println("Error initiating datasource: ", err)
+		fmt.Println("Error initiating datasource: ", err.Error())
+		return nil, err
 	}
 
 	product, _ := ds.GetProduct("VOUCHER")

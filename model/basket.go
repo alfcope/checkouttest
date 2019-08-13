@@ -49,7 +49,7 @@ func (b *Basket) GetTotal() float64 {
 	return b.total
 }
 
-func (b *Basket) CalculatePrice() (float64, error) {
+func (b *Basket) CalculatePrice(promotions map[PromotionType]Promotion) (float64, error) {
 	total := 0
 
 	log.Print("Waiting for!")
