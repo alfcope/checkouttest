@@ -1,81 +1,40 @@
 package model
 
 import (
-	"log"
 	"sync"
 )
 
-type Item struct {
-	code       ProductCode
-	finalPrice int
-}
-
 type Basket struct {
-	Id               string
-	items            map[ProductCode][]Item
-	itemsInPromotion map[PromotionType]*[]Item
+	Id    string
+	lines map[ProductCode]Line
 
-	total float64
-	RWMux sync.RWMutex
+	rwMux sync.RWMutex
 }
 
-func NewItem(pcode ProductCode, price int) *Item {
-	return &Item{
-		code:       pcode,
-		finalPrice: price,
-	}
+type Line struct {
+	Product
+	amount int
 }
 
 func NewBasket(id string) *Basket {
 	return &Basket{
-		Id:               id,
-		items:            make(map[ProductCode][]Item),
-		itemsInPromotion: make(map[PromotionType]*[]Item),
-		total:            -1, //Price cache
-		RWMux:            sync.RWMutex{},
+		Id:    id,
+		lines: make(map[ProductCode]Line),
+		rwMux: sync.RWMutex{},
 	}
 }
 
-func (b *Basket) AddItem(newItem *Item) {
-	b.RWMux.Lock()
-	defer b.RWMux.Unlock()
+func (b *Basket) AddProduct(p Product) {
+	b.rwMux.Lock()
+	defer b.rwMux.Unlock()
 
-	b.items[newItem.code] = append(b.items[newItem.code], *newItem)
-	// Expire price cache
-	b.total = -1
-}
-
-func (b *Basket) GetTotal() float64 {
-	return b.total
-}
-
-func (b *Basket) CalculatePrice(promotions map[PromotionType]Promotion) (float64, error) {
-	total := 0
-
-	log.Print("Waiting for!")
-	b.RWMux.Lock()
-	defer b.RWMux.Unlock()
-	log.Print("Lock acquired!")
-
-	if b.total > -1 {
-		return b.total, nil
+	if l, ok := b.lines[p.Code]; ok {
+		l.amount++
+		return
 	}
 
-	//Items out of any promotion
-	for _, items := range b.items {
-		if items != nil {
-			total += items[0].finalPrice * len(items)
-		}
+	b.lines[p.Code] = Line{
+		Product: p,
+		amount:  1,
 	}
-
-	//Items in promotions
-	for _, items := range b.itemsInPromotion {
-		for _, item := range *items {
-			total += item.finalPrice
-		}
-	}
-
-	b.total = float64(total/100)
-
-	return b.total, nil
 }

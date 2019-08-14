@@ -32,11 +32,6 @@ func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 		return nil, err
 	}
 
-	product, _ := ds.GetProduct("VOUCHER")
-	fmt.Printf("Product: %v\n", product)
-	promotion, _ := ds.GetPromotion("FREE_ITEMS")
-	fmt.Printf("Promotion: %v\n", promotion)
-
 	checkoutService := api.NewCheckoutService(*ds)
 
 	routes := mux.NewRouter()

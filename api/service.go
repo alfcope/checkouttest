@@ -12,7 +12,7 @@ type checkoutService struct {
 
 type CheckoutService interface {
 	CreateBasket() (string, error)
-	AddItem(string, model.ProductCode) error
+	AddProduct(string, model.ProductCode) error
 	GetBasketPrice(string) (float64, error)
 	DeleteBasket(string)
 }
@@ -37,42 +37,26 @@ func (c *checkoutService) CreateBasket() (string, error) {
 	return id, nil
 }
 
-func (c *checkoutService) AddItem(basketId string, productCode model.ProductCode) error {
+func (c *checkoutService) AddProduct(bId string, pCode model.ProductCode) error {
 
-	_, err := c.ds.GetProduct(productCode)
+	p, err := c.ds.GetProduct(pCode)
 	if err != nil {
 		return err
 	}
 
-	return c.ds.AddItemToBasket(basketId, productCode)
+	basket, err := c.ds.GetBasket(bId)
+	if err != nil {
+		return err
+	}
+
+	basket.AddProduct(p)
+
+	return nil
 }
 
 func (c *checkoutService) GetBasketPrice(id string) (float64, error) {
 
-	basket, err := c.ds.GetBasket(id)
-	if err != nil {
-		return 0, err
-	}
-
-	promotions := c.ds.GetPromotions()
-
-	if total := basket.GetTotal(); total > -1 {
-		return total, nil
-	}
-
-	for _, promotion := range promotions {
-		promotion.ApplyTo(basket)
-	}
-
-	basket.RWMux.Lock()
-	defer basket.RWMux.Unlock()
-
-	total, err := basket.CalculatePrice(promotions)
-	if err != nil {
-		return 0, err
-	}
-
-	return total, nil
+	return 0, nil
 }
 
 func (c *checkoutService) DeleteBasket(id string) {

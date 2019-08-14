@@ -15,7 +15,7 @@ type Datasource struct {
 	// products and promotions do not need mutex as they do not
 	// change its state. Just once at startup
 	products   map[model.ProductCode]model.Product
-	promotions map[model.PromotionType]model.Promotion
+	promotions []model.Promotion
 
 	baskets    map[string]model.Basket
 	basketsMux sync.RWMutex
@@ -24,7 +24,7 @@ type Datasource struct {
 func InitDatasource(config config.DataConfig) (*Datasource, error) {
 	ds := Datasource{
 		products:   make(map[model.ProductCode]model.Product),
-		promotions: make(map[model.PromotionType]model.Promotion),
+		promotions: make([]model.Promotion, 0),
 		baskets:    make(map[string]model.Basket),
 		basketsMux: sync.RWMutex{},
 	}
@@ -50,16 +50,8 @@ func (d *Datasource) GetProduct(code model.ProductCode) (model.Product, error) {
 	return *new(model.Product), errors.NewProductNotFound(code)
 }
 
-func (d *Datasource) GetPromotion(code model.PromotionType) (model.Promotion, error) {
-	if promotion, ok := d.promotions[code]; ok {
-		return promotion, nil
-	}
-
-	return *new(model.Promotion), errors.NewPromotionNotFound(code)
-}
-
-func (d *Datasource) GetPromotions() map[model.PromotionType]model.Promotion {
-	return d.promotions
+func (d *Datasource) GetPromotions() []model.Promotion {
+	return d.promotions[:]
 }
 
 func (d *Datasource) GetBasket(id string) (*model.Basket, error) {
@@ -80,22 +72,6 @@ func (d *Datasource) AddBasket(basket *model.Basket) error {
 	}
 
 	return errors.NewPrimaryKeyError(basket.Id)
-}
-
-func (d *Datasource) AddItemToBasket(basketId string, code model.ProductCode) error {
-
-	if _, ok := d.products[code]; !ok {
-		return errors.NewProductNotFound(code)
-	}
-
-	log.Println("Adding - Baskets size: ", len(d.baskets))
-
-	if basket, ok := d.baskets[basketId]; ok {
-		basket.AddItem(model.NewItem(code, d.products[code].Price))
-		return nil
-	}
-
-	return errors.NewBasketNotFound(basketId)
 }
 
 func (d *Datasource) DeleteBasket(basketId string) {
@@ -146,7 +122,7 @@ func (d *Datasource) loadPromotions(filePath string) error {
 			continue
 		}
 
-		d.promotions[promotion.GetType()] = promotion
+		d.promotions = append(d.promotions, promotion)
 	}
 
 	return nil

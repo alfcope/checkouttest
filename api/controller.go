@@ -74,7 +74,7 @@ func (c *CheckoutController) AddItem() http.HandlerFunc {
 			return
 		}
 
-		err = c.checkoutService.AddItem(basketId, request.Code)
+		err = c.checkoutService.AddProduct(basketId, request.Code)
 		if err != nil {
 			responses.ResponseError(w, logger, responses.GetStatusByError(err), err.Error())
 			return
