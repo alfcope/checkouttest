@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var testCases = []struct {
+var promotionCases = []struct {
 	basketLines    map[ProductCode]Line //Items in the basket
 	promo          Promotion            //Promotion to apply
 	itWithoutPromo int                  //Number of items out of the promotion
@@ -110,7 +110,7 @@ var testCases = []struct {
 }
 
 func TestPromotions(t *testing.T) {
-	for _, tc := range testCases {
+	for _, tc := range promotionCases {
 		inOffer := make(map[ProductCode]*[]int)
 
 		tc.promo.Resolve(tc.basketLines, inOffer)

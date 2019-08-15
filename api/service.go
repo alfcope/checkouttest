@@ -49,9 +49,7 @@ func (c *checkoutService) AddProduct(id string, pCode model.ProductCode) error {
 		return err
 	}
 
-	basket.AddProduct(p)
-
-	return nil
+	return basket.AddProduct(p)
 }
 
 func (c *checkoutService) GetBasketPrice(id string) (float64, error) {

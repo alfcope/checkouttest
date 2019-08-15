@@ -24,19 +24,27 @@ func NewBasket(id string) *Basket {
 	}
 }
 
-func (b *Basket) AddProduct(p Product) {
+func (b *Basket) AddProduct(p Product) error {
 	b.rwMux.Lock()
 	defer b.rwMux.Unlock()
 
+	err := p.Validate()
+	if err != nil {
+		return err
+	}
+
 	if l, ok := b.lines[p.Code]; ok {
 		l.amount++
-		return
+		b.lines[p.Code] = l
+		return nil
 	}
 
 	b.lines[p.Code] = Line{
 		Product: p,
 		amount:  1,
 	}
+
+	return nil
 }
 
 func (b *Basket) CalculatePrice(offers []Promotion) float64 {
@@ -66,5 +74,5 @@ func (b *Basket) CalculatePrice(offers []Promotion) float64 {
 		price += (line.amount - inOfferCounter) * line.Price
 	}
 
-	return float64(price / 100)
+	return float64(price) / 100
 }
