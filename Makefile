@@ -11,7 +11,7 @@ dependency:
 
 build:
 	@echo "$(OK_COLOR)==> Building... $(NO_COLOR)"
-	@docker build . -t local/payments-service
+	@docker build . -t local/checkout-service
 
 unit-tests:
 	@go test -v -short ./...

@@ -1,5 +1,10 @@
 package model
 
+import (
+	"github.com/alfcope/checkouttest/errors"
+	"strings"
+)
+
 type ProductCode string
 
 type Product struct {
@@ -8,10 +13,20 @@ type Product struct {
 	Price int         `json:"price"`
 }
 
-func NewProduct(code ProductCode, name string, price int) *Product {
-	return &Product{
-		Code:  code,
-		Name:  name,
-		Price: price,
+func (p *Product) Validate() error {
+	var validationErrorDescriptions []*errors.ValidationErrorDescription
+
+	if len(strings.TrimSpace(string(p.Code))) == 0 {
+		validationErrorDescriptions = append(validationErrorDescriptions, errors.NewValidationErrorDescription("code", "Invalid product code"))
 	}
+
+	if p.Price <= 0 {
+		validationErrorDescriptions = append(validationErrorDescriptions, errors.NewValidationErrorDescription("price", "Invalid product price"))
+	}
+
+	if len(validationErrorDescriptions) > 0 {
+		return errors.NewValidationError(validationErrorDescriptions)
+	}
+
+	return nil
 }

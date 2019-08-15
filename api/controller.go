@@ -32,7 +32,7 @@ func (c *CheckoutController) initializeRoutes(router *mux.Router) {
 	// swagger:route GET /{id} payments getPayment
 	checkoutRouter.HandleFunc("/{id}/items/", c.AddItem()).Methods("POST").Headers("Content-Type", "application/json")
 	// swagger:route GET / payments getPaymentsPage
-	checkoutRouter.HandleFunc("/{id}", c.GetPrecio()).Methods("GET").Queries("price","").Headers("Accept", "application/json")
+	checkoutRouter.HandleFunc("/{id}", c.GetPrice()).Methods("GET").Queries("price","").Headers("Accept", "application/json")
 	// swagger:route DELETE /{id} payments deletePayment
 	checkoutRouter.HandleFunc("/{id}", c.DeleteBasket()).Methods("DELETE")
 }
@@ -89,7 +89,7 @@ func (c *CheckoutController) AddItem() http.HandlerFunc {
 // Http method: POST
 // Path parameter: payment id
 // Return: the new payment resource if successfull or a http error code otherwise.
-func (c *CheckoutController) GetPrecio() http.HandlerFunc {
+func (c *CheckoutController) GetPrice() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.GetLoggerWithFields(r)
 

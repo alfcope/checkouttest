@@ -47,7 +47,7 @@ func (d *Datasource) GetProduct(code model.ProductCode) (model.Product, error) {
 		return product, nil
 	}
 
-	return *new(model.Product), errors.NewProductNotFound(code)
+	return *new(model.Product), errors.NewProductNotFound(string(code))
 }
 
 func (d *Datasource) GetPromotions() []model.Promotion {
@@ -96,8 +96,12 @@ func (d *Datasource) loadProducts(filePath string) error {
 	}
 
 	for _, p := range products {
-		d.products[p.Code] = p
+		err := p.Validate()
+		if err != nil {
+			d.products[p.Code] = p
+		}
 	}
+
 	return nil
 }
 

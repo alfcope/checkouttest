@@ -16,7 +16,7 @@ func ParsePromotion(nodes map[string]interface{}) (model.Promotion, error) {
 		return parseFreeItemsPromotion(nodes)
 
 	default:
-		return nil, errors.NewPromotionNotFound(model.PromotionType(nodes["code"].(string)))
+		return nil, errors.NewPromotionNotFound(nodes["code"].(string))
 	}
 }
 

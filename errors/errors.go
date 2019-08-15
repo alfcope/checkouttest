@@ -2,15 +2,14 @@ package errors
 
 import (
 	"fmt"
-	"github.com/alfcope/checkouttest/model"
 )
 
 type ProductNotFound struct {
-	Code model.ProductCode
+	Code string
 }
 
 type PromotionNotFound struct {
-	Code model.PromotionType
+	Code string
 }
 
 type PromotionInvalid struct {
@@ -26,11 +25,20 @@ type PrimaryKeyError struct {
 	Id string
 }
 
-func NewProductNotFound(code model.ProductCode) *ProductNotFound {
+type ValidationError struct {
+	Errors []*ValidationErrorDescription
+}
+
+type ValidationErrorDescription struct {
+	Field   string
+	Message string
+}
+
+func NewProductNotFound(code string) *ProductNotFound {
 	return &ProductNotFound{Code: code}
 }
 
-func NewPromotionNotFound(code model.PromotionType) *PromotionNotFound {
+func NewPromotionNotFound(code string) *PromotionNotFound {
 	return &PromotionNotFound{
 		Code: code,
 	}
@@ -49,6 +57,19 @@ func NewBasketNotFound(id string) *BasketNotFound {
 
 func NewPrimaryKeyError(id string) *PrimaryKeyError {
 	return &PrimaryKeyError{Id: id}
+}
+
+func NewValidationError(errors []*ValidationErrorDescription) *ValidationError {
+	return &ValidationError{
+		Errors: errors,
+	}
+}
+
+func NewValidationErrorDescription(field, message string) *ValidationErrorDescription {
+	return &ValidationErrorDescription{
+		Field:   field,
+		Message: message,
+	}
 }
 
 //TODO: localization for error messages
@@ -70,4 +91,8 @@ func (p *PromotionInvalid) Error() string {
 
 func (p *PrimaryKeyError) Error() string {
 	return fmt.Sprintf("Primary key already exists: %v", p.Id)
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprint("There has been a validation error")
 }

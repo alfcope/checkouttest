@@ -38,3 +38,33 @@ func (b *Basket) AddProduct(p Product) {
 		amount:  1,
 	}
 }
+
+func (b *Basket) CalculatePrice(offers []Promotion) float64 {
+	var productInOffer = make(map[ProductCode]*[]int)
+	var price = 0
+
+	b.rwMux.Lock()
+	defer b.rwMux.Unlock()
+
+	if offers != nil && len(offers) > 0 {
+		for _, p := range offers {
+			p.Resolve(b.lines, productInOffer)
+		}
+	}
+
+	for pcode, line := range b.lines {
+		inOfferCounter := 0
+		if inOffer, ok := productInOffer[pcode]; ok {
+			if inOffer != nil && len(*inOffer) > 0 {
+				inOfferCounter = len(*inOffer)
+				for _, offerPrice := range *inOffer {
+					price += offerPrice
+				}
+			}
+		}
+
+		price += (line.amount - inOfferCounter) * line.Price
+	}
+
+	return float64(price / 100)
+}

@@ -37,14 +37,14 @@ func (c *checkoutService) CreateBasket() (string, error) {
 	return id, nil
 }
 
-func (c *checkoutService) AddProduct(bId string, pCode model.ProductCode) error {
+func (c *checkoutService) AddProduct(id string, pCode model.ProductCode) error {
 
 	p, err := c.ds.GetProduct(pCode)
 	if err != nil {
 		return err
 	}
 
-	basket, err := c.ds.GetBasket(bId)
+	basket, err := c.ds.GetBasket(id)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,14 @@ func (c *checkoutService) AddProduct(bId string, pCode model.ProductCode) error 
 
 func (c *checkoutService) GetBasketPrice(id string) (float64, error) {
 
-	return 0, nil
+	basket, err := c.ds.GetBasket(id)
+	if err != nil {
+		return 0, err
+	}
+
+	promotions := c.ds.GetPromotions()
+
+	return basket.CalculatePrice(promotions), nil
 }
 
 func (c *checkoutService) DeleteBasket(id string) {
