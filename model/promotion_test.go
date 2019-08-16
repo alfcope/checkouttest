@@ -118,12 +118,16 @@ func TestPromotions(t *testing.T) {
 		cInOffer := 0
 		cOutOffer := 0
 		freeCounter := 0
+		//For each product in the basket
 		for pCode, line := range tc.basketLines {
+			// Check how many are in/out/free offer
 			if items, ok := inOffer[pCode]; ok {
 				cInOffer += len(*items)
 				cOutOffer += line.amount - len(*items)
 
+				// If the test case expects free items
 				if tc.free >= 0 {
+					// Count number of items with price equals to zero
 					for _, price := range *items {
 						if price == 0 {
 							freeCounter++
@@ -136,13 +140,13 @@ func TestPromotions(t *testing.T) {
 		}
 
 		if cInOffer != tc.itWithPromo {
-			t.Errorf("got %v items with promo, want %v", cInOffer, tc.itWithPromo)
+			t.Errorf("got %v items with promo, wanted %v", cInOffer, tc.itWithPromo)
 		}
 		if cOutOffer != tc.itWithoutPromo {
-			t.Errorf("got %v items without promo, want %v", cOutOffer, tc.itWithoutPromo)
+			t.Errorf("got %v items without promo, wanted %v", cOutOffer, tc.itWithoutPromo)
 		}
 		if tc.free >= 0 && freeCounter != tc.free {
-			t.Errorf("got %v items free, want %v", freeCounter, tc.free)
+			t.Errorf("got %v items free, wanted %v", freeCounter, tc.free)
 		}
 
 	}

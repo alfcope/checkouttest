@@ -118,7 +118,7 @@ func (f FreeItemsPromotion) Resolve(lines map[ProductCode]Line, inOffer map[Prod
 					}
 
 					for i := 0; i < elements; i++ {
-						if i < rule.Free * promotions {
+						if i < rule.Free*promotions {
 							*inOffer[pCode] = append(*inOffer[pCode], 0)
 						} else {
 							*inOffer[pCode] = append(*inOffer[pCode], line.Product.Price)
