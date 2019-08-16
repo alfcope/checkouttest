@@ -8,6 +8,10 @@ import (
 
 func ParsePromotion(nodes map[string]interface{}) (model.Promotion, error) {
 
+	if _, ok := nodes["code"]; !ok {
+		return nil, errors.NewPromotionNotFound("")
+	}
+
 	switch nodes["code"].(string) {
 	case "BULK":
 		return parseBulkPromotion(nodes)
@@ -60,7 +64,7 @@ func parseBulkPromotion(nodes map[string]interface{}) (*model.BulkPromotion, err
 			}
 
 			promoRule := model.BulkOfferRule{
-				Buy:  int(rule["buy"].(float64)),
+				Buy:   int(rule["buy"].(float64)),
 				Price: int(rule["price"].(float64)),
 			}
 
