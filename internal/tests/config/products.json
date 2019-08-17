@@ -13,5 +13,10 @@
     "code": "MUG",
     "name": "Cabify Coffee Mug",
     "price": 750
+  },
+  {
+    "code": "FAKE",
+    "name": "This will be discarded",
+    "price": -750
   }
 ]

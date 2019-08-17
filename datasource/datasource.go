@@ -7,7 +7,6 @@ import (
 	"github.com/alfcope/checkouttest/errors"
 	"github.com/alfcope/checkouttest/model"
 	"io/ioutil"
-	"log"
 	"sync"
 )
 
@@ -87,7 +86,6 @@ func (d *InMemoryDatasource) DeleteBasket(basketId string) {
 	defer d.basketsMux.Unlock()
 
 	delete(d.baskets, basketId)
-	log.Println("Deleting - Baskets size: ", len(d.baskets))
 }
 
 func (d *InMemoryDatasource) loadProducts(filePath string) error {
@@ -105,7 +103,7 @@ func (d *InMemoryDatasource) loadProducts(filePath string) error {
 
 	for _, p := range products {
 		err := p.Validate()
-		if err != nil {
+		if err == nil {
 			d.products[p.Code] = p
 		}
 	}

@@ -32,7 +32,7 @@ func (c *CheckoutController) initializeRoutes(router *mux.Router) {
 	// swagger:route GET /{id} payments getPayment
 	checkoutRouter.HandleFunc("/{id}/items/", c.AddItem()).Methods("POST").Headers("Content-Type", "application/json")
 	// swagger:route GET / payments getPaymentsPage
-	checkoutRouter.HandleFunc("/{id}", c.GetPrice()).Methods("GET").Queries("price","").Headers("Accept", "application/json")
+	checkoutRouter.HandleFunc("/{id}", c.GetPrice()).Methods("GET").Queries("price", "").Headers("Accept", "application/json")
 	// swagger:route DELETE /{id} payments deletePayment
 	checkoutRouter.HandleFunc("/{id}", c.DeleteBasket()).Methods("DELETE")
 }
@@ -74,6 +74,10 @@ func (c *CheckoutController) AddItem() http.HandlerFunc {
 			return
 		}
 
+		if request.Code == "" {
+			responses.ResponseError(w, logger, http.StatusUnprocessableEntity, "Empty product code")
+		}
+
 		err = c.checkoutService.AddProduct(basketId, request.Code)
 		if err != nil {
 			responses.ResponseError(w, logger, responses.GetStatusByError(err), err.Error())
@@ -101,7 +105,7 @@ func (c *CheckoutController) GetPrice() http.HandlerFunc {
 			responses.ResponseError(w, logger, responses.GetStatusByError(err), err.Error())
 			return
 		}
-		responses.Response(w, logger, http.StatusOK, responses.PrecioBasketResponse{Total: total})
+		responses.Response(w, logger, http.StatusOK, responses.PriceBasketResponse{Total: total})
 	}
 }
 

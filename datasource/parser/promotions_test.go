@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/alfcope/checkouttest/errors"
 	"github.com/alfcope/checkouttest/model"
+	"log"
 	"reflect"
 	"testing"
 )
@@ -12,6 +13,11 @@ var promotionsParsersCases = []struct {
 	promotion model.Promotion
 	err       error
 }{
+	{ // Promotion without promos
+		map[string]interface{}{"code": "FAKE", "promos": []interface{}{}},
+		nil,
+		errors.NewPromotionNotFound("FAKE"),
+	},
 	// ---- BULK PROMOTION CASES
 	{ // Empty promotion
 		map[string]interface{}{},
@@ -23,7 +29,7 @@ var promotionsParsersCases = []struct {
 		errors.NewPromotionInvalid("BULK", "empty items list"),
 	}, { // Promotion with a wrong product code
 		map[string]interface{}{"code": "BULK", "promos": []interface{}{
-			map[string]interface{}{"product": "", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(1000)},
+			map[string]interface{}{"product": []interface{}{}, "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(1000)},
 				map[string]interface{}{"buy": float64(5), "price": float64(850)},},
 			},
 			map[string]interface{}{"product": "PR2", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(500)},},},
@@ -35,7 +41,7 @@ var promotionsParsersCases = []struct {
 	}, { // Promotion with a wrong buy value
 		map[string]interface{}{"code": "BULK", "promos": []interface{}{
 			map[string]interface{}{"product": "PR1", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(1000)},
-				map[string]interface{}{"buy": float64(-5), "price": float64(850)},},
+				map[string]interface{}{"buy": "aaaa", "price": float64(850)},},
 			},
 			map[string]interface{}{"product": "PR2", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(500)},},},
 		}},
@@ -46,7 +52,7 @@ var promotionsParsersCases = []struct {
 		nil,
 	}, { // Promotion with a wrong price value
 		map[string]interface{}{"code": "BULK", "promos": []interface{}{
-			map[string]interface{}{"product": "PR1", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(-1000)},
+			map[string]interface{}{"product": "PR1", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": "aaaa"},
 				map[string]interface{}{"buy": float64(5), "price": float64(850)},},
 			},
 			map[string]interface{}{"product": "PR2", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "price": float64(500)},},},
@@ -89,7 +95,7 @@ var promotionsParsersCases = []struct {
 		errors.NewPromotionInvalid("FREE_ITEMS", "empty items list"),
 	}, { // Promotion with a wrong product code
 		map[string]interface{}{"code": "FREE_ITEMS", "promos": []interface{}{
-			map[string]interface{}{"product": "", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": float64(1)},
+			map[string]interface{}{"product": []interface{}{}, "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": float64(1)},
 				map[string]interface{}{"buy": float64(5), "free": float64(3)},},
 			},
 			map[string]interface{}{"product": "PR2", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": float64(1)},},},
@@ -112,7 +118,7 @@ var promotionsParsersCases = []struct {
 		nil,
 	}, { // Promotion with a wrong price value
 		map[string]interface{}{"code": "FREE_ITEMS", "promos": []interface{}{
-			map[string]interface{}{"product": "PR1", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": float64(-1)},
+			map[string]interface{}{"product": "PR1", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": "aaaa"},
 				map[string]interface{}{"buy": float64(5), "free": float64(2)},},
 			},
 			map[string]interface{}{"product": "PR2", "rules": []interface{}{map[string]interface{}{"buy": float64(3), "free": float64(1)},},},
@@ -158,13 +164,14 @@ func TestBasketPrices(t *testing.T) {
 			if err.Error() != pc.err.Error() {
 				t.Errorf("Got error: %v, wanted: %v", err.Error(), pc.err.Error())
 			}
-			return
+			continue
 		}
 
 		if pc.err != nil {
 			t.Errorf("Did not get expected error: %v", pc.err.Error())
 		}
 
+		log.Printf(" %v --- %v", promotion, pc.promotion)
 		if !reflect.DeepEqual(promotion, pc.promotion) {
 			t.Errorf("Got promotion %v, wanted %v", promotion, pc.promotion)
 		}

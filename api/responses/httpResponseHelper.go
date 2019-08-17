@@ -11,7 +11,7 @@ type NewBasketResponse struct {
 	Id string `json:"id"`
 }
 
-type PrecioBasketResponse struct {
+type PriceBasketResponse struct {
 	Total float64 `json:"total"`
 }
 

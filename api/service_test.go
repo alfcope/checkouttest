@@ -18,7 +18,7 @@ type CheckoutServiceTestSuite struct {
 	checkoutService CheckoutService
 }
 
-func TestSuite(t *testing.T) {
+func TestServiceSuite(t *testing.T) {
 	suite.Run(t, new(CheckoutServiceTestSuite))
 }
 
@@ -85,10 +85,10 @@ func (suite *CheckoutServiceTestSuite) TestAddProductToNonExistingBasket() {
 	// Given
 	basketId := uuid.New().String()
 	var productCode model.ProductCode = "P1"
-	product := &model.Product{Code: productCode, Name: "Prod 1", Price: 1000}
+	product := model.Product{Code: productCode, Name: "Prod 1", Price: 1000}
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
-		mock.AnythingOfType("model.ProductCode")).Return(*product, nil)
+		mock.AnythingOfType("model.ProductCode")).Return(product, nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
 		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
 
@@ -107,10 +107,10 @@ func (suite *CheckoutServiceTestSuite) TestAddProduct() {
 	// Given
 	basketId := uuid.New().String()
 	var productCode model.ProductCode = "P1"
-	product := &model.Product{Code: productCode, Name: "Prod 1", Price: 1000}
+	product := model.Product{Code: productCode, Name: "Prod 1", Price: 1000}
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
-		mock.AnythingOfType("model.ProductCode")).Return(*product, nil)
+		mock.AnythingOfType("model.ProductCode")).Return(product, nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
 		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
 
@@ -119,4 +119,41 @@ func (suite *CheckoutServiceTestSuite) TestAddProduct() {
 
 	// Then
 	suite.Nil(err)
+}
+
+func (suite *CheckoutServiceTestSuite) TestGetPriceNonExistingBasket() {
+	// Given
+	basketId := uuid.New().String()
+
+	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
+		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
+
+	// When
+	price, err := suite.checkoutService.GetBasketPrice(uuid.New().String())
+
+	// Then
+	if basketNotFound, ok := err.(*errors.BasketNotFound); ok {
+		suite.Equal(basketId, basketNotFound.Id)
+	} else {
+		suite.T().Error("Error should be a basket not found error ")
+	}
+	suite.Equal(float64(0), price)
+}
+
+func (suite *CheckoutServiceTestSuite) TestGetPriceEmptyBasket() {
+	// Given
+	basketId := uuid.New().String()
+	promotions := []model.Promotion{model.NewBulkPromotion(map[model.ProductCode][]model.BulkOfferRule{"P1": {{3, 900},}}),
+		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{3, 1},}})}
+
+	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
+		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
+	suite.datasourceMock.(*mocks.DatasourceMock).On("GetPromotions").Return(promotions)
+
+	// When
+	price, err := suite.checkoutService.GetBasketPrice(uuid.New().String())
+
+	// Then
+	suite.Nil(err)
+	suite.Equal(float64(0), price)
 }
