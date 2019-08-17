@@ -11,7 +11,15 @@ import (
 	"sync"
 )
 
-type Datasource struct {
+type Datasource interface {
+	GetProduct(model.ProductCode) (model.Product, error)
+	GetPromotions() []model.Promotion
+	GetBasket(string) (*model.Basket, error)
+	AddBasket(*model.Basket) error
+	DeleteBasket(string)
+}
+
+type InMemoryDatasource struct {
 	// products and promotions do not need mutex as they do not
 	// change its state. Just once at startup
 	products   map[model.ProductCode]model.Product
@@ -21,8 +29,8 @@ type Datasource struct {
 	basketsMux sync.RWMutex
 }
 
-func InitDatasource(config config.DataConfig) (*Datasource, error) {
-	ds := Datasource{
+func InitInMemoryDatasource(config config.DataConfig) (*InMemoryDatasource, error) {
+	ds := InMemoryDatasource{
 		products:   make(map[model.ProductCode]model.Product),
 		promotions: make([]model.Promotion, 0),
 		baskets:    make(map[string]model.Basket),
@@ -42,7 +50,7 @@ func InitDatasource(config config.DataConfig) (*Datasource, error) {
 	return &ds, nil
 }
 
-func (d *Datasource) GetProduct(code model.ProductCode) (model.Product, error) {
+func (d *InMemoryDatasource) GetProduct(code model.ProductCode) (model.Product, error) {
 	if product, ok := d.products[code]; ok {
 		return product, nil
 	}
@@ -50,11 +58,11 @@ func (d *Datasource) GetProduct(code model.ProductCode) (model.Product, error) {
 	return *new(model.Product), errors.NewProductNotFound(string(code))
 }
 
-func (d *Datasource) GetPromotions() []model.Promotion {
+func (d *InMemoryDatasource) GetPromotions() []model.Promotion {
 	return d.promotions[:]
 }
 
-func (d *Datasource) GetBasket(id string) (*model.Basket, error) {
+func (d *InMemoryDatasource) GetBasket(id string) (*model.Basket, error) {
 	if basket, ok := d.baskets[id]; ok {
 		return &basket, nil
 	}
@@ -62,7 +70,7 @@ func (d *Datasource) GetBasket(id string) (*model.Basket, error) {
 	return new(model.Basket), errors.NewBasketNotFound(id)
 }
 
-func (d *Datasource) AddBasket(basket *model.Basket) error {
+func (d *InMemoryDatasource) AddBasket(basket *model.Basket) error {
 	d.basketsMux.Lock()
 	defer d.basketsMux.Unlock()
 
@@ -74,7 +82,7 @@ func (d *Datasource) AddBasket(basket *model.Basket) error {
 	return errors.NewPrimaryKeyError(basket.Id)
 }
 
-func (d *Datasource) DeleteBasket(basketId string) {
+func (d *InMemoryDatasource) DeleteBasket(basketId string) {
 	d.basketsMux.Lock()
 	defer d.basketsMux.Unlock()
 
@@ -82,7 +90,7 @@ func (d *Datasource) DeleteBasket(basketId string) {
 	log.Println("Deleting - Baskets size: ", len(d.baskets))
 }
 
-func (d *Datasource) loadProducts(filePath string) error {
+func (d *InMemoryDatasource) loadProducts(filePath string) error {
 	var products []model.Product
 
 	file, err := ioutil.ReadFile(filePath)
@@ -105,7 +113,7 @@ func (d *Datasource) loadProducts(filePath string) error {
 	return nil
 }
 
-func (d *Datasource) loadPromotions(filePath string) error {
+func (d *InMemoryDatasource) loadPromotions(filePath string) error {
 	file, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err

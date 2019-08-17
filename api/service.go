@@ -24,12 +24,12 @@ func NewCheckoutService(ds datasource.Datasource) CheckoutService {
 }
 
 func (c *checkoutService) CreateBasket() (string, error) {
+	//TODO: unlikely hash collision could happen!! Use distributed id generator
 	id := uuid.New().String()
 
 	basket := model.NewBasket(id)
 
 	err := c.ds.AddBasket(basket)
-	//TODO: hash collision control!!
 	if err != nil {
 		return "", err
 	}

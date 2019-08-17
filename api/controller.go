@@ -60,7 +60,7 @@ func (c *CheckoutController) CreateBasket() http.HandlerFunc {
 // will be linked to the organisation making the request.
 // Http method: POST
 // Path parameter: payment id
-// Return: the new payment resource if successfull or a http error code otherwise.
+// Return: the new payment resource if successful or a http error code otherwise.
 func (c *CheckoutController) AddItem() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.GetLoggerWithFields(r)
@@ -109,7 +109,7 @@ func (c *CheckoutController) GetPrice() http.HandlerFunc {
 // will be linked to the organisation making the request.
 // Http method: POST
 // Path parameter: payment id
-// Return: the new payment resource if successfull or a http error code otherwise.
+// Return: the new payment resource if successful or a http error code otherwise.
 func (c *CheckoutController) DeleteBasket() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logging.GetLoggerWithFields(r)

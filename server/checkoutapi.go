@@ -26,13 +26,13 @@ type checkoutApi struct {
 // Creates an instance of the api endpoints
 func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 
-	ds, err := datasource.InitDatasource(configuration.Data)
+	ds, err := datasource.InitInMemoryDatasource(configuration.Data)
 	if err != nil {
 		fmt.Println("Error initiating datasource: ", err.Error())
 		return nil, err
 	}
 
-	checkoutService := api.NewCheckoutService(*ds)
+	checkoutService := api.NewCheckoutService(ds)
 
 	routes := mux.NewRouter()
 	apiRoute := routes.PathPrefix("/api/v1").Subrouter().StrictSlash(true)

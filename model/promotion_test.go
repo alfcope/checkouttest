@@ -5,20 +5,20 @@ import (
 )
 
 var promotionCases = []struct {
-	basketLines    map[ProductCode]Line //Items in the basket
-	promo          Promotion            //Promotion to apply
-	itWithoutPromo int                  //Number of items out of the promotion
-	itWithPromo    int                  //Number of items eligible by the promotion
-	free           int                  //Number of free items if applicable, -1 otherwise
+	basketLines    map[ProductCode]Line // Items in the basket
+	promo          Promotion            // Promotion to apply
+	itWithoutPromo int                  // Number of items out of the promotion
+	itWithPromo    int                  // Number of items eligible by the promotion
+	free           int                  // Number of free items if applicable, -1 otherwise
 }{
 	// ----- BULK PROMOTION TESTS ------
-	{ //Edge case: basket without items
+	{ // Edge case: empty basket - without lines
 		make(map[ProductCode]Line),
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{Buy: 2, Price: 1000,}}}),
 		0,
 		0,
 		-1,
-	}, {
+	}, { // Different products without matching any promotion
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 1,},
 			"P2": {Product{"P2", "bbbb", 1200,}, 1,},
 			"P3": {Product{"P3", "cccc", 1500,}, 1,}},
@@ -26,19 +26,19 @@ var promotionCases = []struct {
 		3,
 		0,
 		-1,
-	}, { //Exact amount of items
+	}, { // Exact amount of items for a promotion
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 3,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{Buy: 3, Price: 850,}}}),
 		0,
 		3,
 		-1,
-	}, {
+	}, { // Spare items
 		map[ProductCode]Line{"P2": {Product{"P2", "bbbb", 1200,}, 3,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{Buy: 2, Price: 1000,}}}),
 		1,
 		2,
 		-1,
-	}, { //Exact amount of same items matching two different rules
+	}, { // Exact amount of same items matching two different rules
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 7,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{Buy: 5, Price: 650,}, {Buy: 2, Price: 850,}}}),
 		0,
@@ -50,7 +50,7 @@ var promotionCases = []struct {
 		3,
 		12,
 		-1,
-	}, { //Exact amount of two different items matching two different rules
+	}, { // Exact amount of two different items matching two different rules
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1500,}, 3,},
 			"P2": {Product{"P2", "bbbb", 1200,}, 3,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{Buy: 3, Price: 1300,},},
@@ -60,13 +60,13 @@ var promotionCases = []struct {
 		-1,
 	},
 	// ----- FREE ITEMS PROMOTION TESTS ------
-	{ //Edge case: basket without items
+	{ // Edge case: empty basket - without lines
 		make(map[ProductCode]Line),
 		NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P2": {{Buy: 2, Free: 1,}}}),
 		0,
 		0,
 		0,
-	}, {
+	}, { // Different products without matching any promotion
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 1,},
 			"P2": {Product{"P2", "bbbb", 1200,}, 1,},
 			"P3": {Product{"P3", "cccc", 1500,}, 1,}},
@@ -74,7 +74,7 @@ var promotionCases = []struct {
 		3,
 		0,
 		0,
-	}, { //Exact amount of items
+	}, { // Exact amount of items for a promotion
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 3,}},
 		NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{Buy: 3, Free: 1,}}}),
 		0,
@@ -86,7 +86,7 @@ var promotionCases = []struct {
 		1,
 		2,
 		1,
-	}, { //Exact amount of same items matching two different rules
+	}, { // Exact amount of same items matching two different rules
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 7,}},
 		NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{Buy: 5, Free: 3,}, {Buy: 2, Free: 1,}}}),
 		0,
@@ -98,7 +98,7 @@ var promotionCases = []struct {
 		3,
 		12,
 		3,
-	}, { //Exact amount of two different items matching two different rules
+	}, { // Exact amount of two different items matching two different rules for one promotion
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1500,}, 3,},
 			"P2": {Product{"P2", "bbbb", 1200,}, 3,}},
 		NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{Buy: 3, Free: 1,},},
