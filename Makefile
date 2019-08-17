@@ -17,14 +17,15 @@ unit-tests:
 	@go test -v -short ./...
 
 integration-tests: docker-it-up
+	@./waitForContainer.sh
 	@echo "$(OK_COLOR)==> Running ITs$(NO_COLOR)"
-	@go test -v ./tests/integration/...; docker-compose -f ./tests/docker-compose-it.yml down
+	@go test -v ./internal/tests/integration/...; docker-compose -f ./internal/tests/docker-compose-it.yml down
 
 component-tests: docker-up
 	@cd tests/component; godog; docker-compose down
 
 docker-it-up:
-	@docker-compose -f ./tests/docker-compose-it.yml up -d
+	@docker-compose -f ./internal/tests/docker-compose-it.yml up -d
 
 docker-up:
 	@docker-compose up -d

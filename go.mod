@@ -3,6 +3,7 @@ module github.com/alfcope/checkouttest
 go 1.12
 
 require (
+	github.com/etherlabsio/healthcheck v0.0.0-20190516102650-2b759a75f4be
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3

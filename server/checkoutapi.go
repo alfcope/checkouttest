@@ -37,6 +37,8 @@ func NewCheckoutApi(configuration config.Configuration) (*checkoutApi, error) {
 	routes := mux.NewRouter()
 	apiRoute := routes.PathPrefix("/api/v1").Subrouter().StrictSlash(true)
 
+	api.AddHealthCheckRoute(apiRoute)
+
 	return &checkoutApi{
 		routes:     apiRoute,
 		controller: api.NewCheckoutController(apiRoute, checkoutService),

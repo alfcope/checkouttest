@@ -10,6 +10,7 @@ import (
 	"github.com/alfcope/checkouttest/errors"
 	"github.com/alfcope/checkouttest/internal/tests/mocks"
 	"github.com/alfcope/checkouttest/model"
+	"github.com/alfcope/checkouttest/pkg/logging"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/mock"
@@ -57,7 +58,7 @@ func (suite *CheckoutControllerTestSuite) TestCreateBasketDuplicatedId() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.CreateBasket()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.CreateBasket())
 
 	handler.ServeHTTP(rr, req)
 
@@ -77,7 +78,7 @@ func (suite *CheckoutControllerTestSuite) TestCreateBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.CreateBasket()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.CreateBasket())
 
 	handler.ServeHTTP(rr, req)
 
@@ -115,7 +116,7 @@ func (suite *CheckoutControllerTestSuite) TestAddNonExistingProduct() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.AddItem()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.AddItem())
 
 	handler.ServeHTTP(rr, req)
 
@@ -146,7 +147,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProductWrongPayload() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.AddItem()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.AddItem())
 
 	handler.ServeHTTP(rr, req)
 
@@ -181,7 +182,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProductToNonExistingBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.AddItem()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.AddItem())
 
 	handler.ServeHTTP(rr, req)
 
@@ -214,7 +215,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProduct() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.AddItem()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.AddItem())
 
 	handler.ServeHTTP(rr, req)
 
@@ -237,7 +238,7 @@ func (suite *CheckoutControllerTestSuite) TestGetPriceNonExistingBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.GetPrice()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.GetPrice())
 
 	handler.ServeHTTP(rr, req)
 
@@ -263,7 +264,7 @@ func (suite *CheckoutControllerTestSuite) TestGetPriceEmptyBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.GetPrice()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.GetPrice())
 
 	handler.ServeHTTP(rr, req)
 
@@ -294,7 +295,7 @@ func (suite *CheckoutControllerTestSuite) TestDeleteNonExistingBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.DeleteBasket()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.DeleteBasket())
 
 	handler.ServeHTTP(rr, req)
 
@@ -316,7 +317,7 @@ func (suite *CheckoutControllerTestSuite) TestDeleteBasket() {
 
 	rr := httptest.NewRecorder()
 
-	handler := suite.checkoutController.DeleteBasket()
+	handler := logging.AccessLoggingMiddleware(suite.checkoutController.DeleteBasket())
 
 	handler.ServeHTTP(rr, req)
 

@@ -25,7 +25,7 @@ FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
 
 COPY --from=builder /bin/checkout-service /bin/checkout/checkout-service
-COPY ./config/*.yml /bin/checkout/config/
+COPY ./config/*.yml ./config/*.json /bin/checkout/config/
 
 # Use the unprivileged user serviceuser
 USER serviceuser

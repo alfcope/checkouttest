@@ -1,13 +1,21 @@
 package main
 
 import (
+	"flag"
 	"github.com/alfcope/checkouttest/config"
 	"github.com/alfcope/checkouttest/pkg/logging"
 	"github.com/alfcope/checkouttest/server"
 )
 
 func main() {
-	configuration, err := config.LoadConfiguration("./config", "configuration")
+	configPath := flag.String("config", "", "path to configuration")
+	flag.Parse()
+
+	if *configPath == "" {
+		*configPath = "./config"
+	}
+
+	configuration, err := config.LoadConfiguration(*configPath, "configuration")
 
 	api, err := server.NewCheckoutApi(configuration)
 	if err != nil {
