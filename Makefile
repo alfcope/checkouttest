@@ -24,6 +24,9 @@ integration-tests: docker-it-up
 docker-it-up:
 	@docker-compose -f ./internal/tests/docker-compose-it.yml up -d
 
+docker-it-down:
+	@docker-compose -f ./internal/tests/docker-compose-it.yml down
+
 docker-up:
 	@docker-compose up -d
 	@echo "$(WARN_COLOR)==> Waiting for service to be ready$(NO_COLOR)"

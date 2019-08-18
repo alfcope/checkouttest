@@ -35,8 +35,8 @@ var promotionCases = []struct {
 	}, { // Spare items
 		map[ProductCode]Line{"P2": {Product{"P2", "bbbb", 1200,}, 3,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{Buy: 2, Price: 1000,}}}),
-		1,
-		2,
+		0,
+		3,
 		-1,
 	}, { // Exact amount of same items matching two different rules
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1000,}, 7,}},
@@ -47,8 +47,8 @@ var promotionCases = []struct {
 	}, {
 		map[ProductCode]Line{"P3": {Product{"P3", "cccc", 1500,}, 15,}},
 		NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P3": {{Buy: 4, Price: 1100,}}}),
-		3,
-		12,
+		0,
+		15,
 		-1,
 	}, { // Exact amount of two different items matching two different rules
 		map[ProductCode]Line{"P1": {Product{"P1", "aaaa", 1500,}, 3,},

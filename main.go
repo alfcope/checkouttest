@@ -16,6 +16,10 @@ func main() {
 	}
 
 	configuration, err := config.LoadConfiguration(*configPath, "configuration")
+	if err != nil {
+		logging.Logger.Error("Shutting down. Error loading configuration: ", err.Error())
+		return
+	}
 
 	api, err := server.NewCheckoutApi(configuration)
 	if err != nil {

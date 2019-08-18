@@ -49,21 +49,21 @@ func (b BulkPromotion) Resolve(lines map[ProductCode]Line, inOffer map[ProductCo
 					amountAvailable = amountAvailable - len(*alreadyInOffer)
 				}
 
-				promotions := amountAvailable / rule.Buy
-				log.Printf("\tEnough items for %v rule %v\n", promotions, rule)
-				if promotions > 0 {
-					elements := promotions * rule.Buy
+				//promotions := amountAvailable / rule.Buy
+				//log.Printf("\tEnough items for %v rule %v\n", promotions, rule)
+				if amountAvailable >= rule.Buy {
+					//elements := promotions * rule.Buy
 
 					if !ok || alreadyInOffer == nil {
 						log.Printf("\tCreating offer slice for product: %v\n", pCode)
 						inOffer[pCode] = &[]int{}
 					}
 
-					for i := 0; i < elements; i++ {
+					for i := 0; i < amountAvailable; i++ {
 						*inOffer[pCode] = append(*inOffer[pCode], rule.Price)
 						log.Printf("\tinOffer length: %v\n", len(*inOffer[pCode]))
 
-						log.Printf("\t%v elements remaining\n", elements-i-1)
+						log.Printf("\t%v elements remaining\n", amountAvailable-i-1)
 					}
 				}
 			}
