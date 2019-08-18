@@ -17,7 +17,7 @@ type PriceBasketResponse struct {
 
 // Sends a response error
 func ResponseError(w http.ResponseWriter, log *logrus.Entry, status int, msg string) {
-	if msg != "" {
+	if log != nil && msg != "" {
 		log.Error(msg)
 	}
 
@@ -25,10 +25,10 @@ func ResponseError(w http.ResponseWriter, log *logrus.Entry, status int, msg str
 }
 
 func Response(w http.ResponseWriter, log *logrus.Entry, status int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
 	if payload != nil {
+		w.Header().Set("Content-Type", "application/json")
 		jsonEncoded, err := json.Marshal(payload)
 
 		if err != nil {

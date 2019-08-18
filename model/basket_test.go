@@ -139,6 +139,13 @@ var basketPriceCases = []struct {
 			"P2": {Product{"P2", "Prod name 2", 1545,}, 4,},},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 900},}, "P2": {{3, 1210}}}, ),},
 		float64(900*3+1210*3+1545) / 100,
+	}, { // Basket with different products matching same offer with rules for that products
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 500,}, 3,},
+			"P2": {Product{"P2", "Prod name 2", 2000,}, 3,},
+			"P3": {Product{"P3", "Prod name 3", 750,}, 1,},},
+		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{3, 1900},}}),
+			NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{2, 1},}})},
+		float64(500*2+1900*3+750) / 100,
 	},
 }
 
@@ -149,7 +156,7 @@ func TestBasketPrices(t *testing.T) {
 		basket.lines = tb.lines
 
 		p := basket.CalculatePrice(tb.offers)
-
+		fmt.Printf(" ------------ Price: %v\n", p)
 		if p != tb.price {
 			t.Errorf("Wanted %v but got %v", tb.price, p)
 		}

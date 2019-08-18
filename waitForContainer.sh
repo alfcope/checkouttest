@@ -7,8 +7,8 @@ MAX_TRIES=3
 
 function serviceIsReady() {
   #docker-compose logs payments | grep "Starting HTTP service"
-  #$(curl --output /dev/null --silent --head --fail http://localhost:8080/api/v1/healthcheck/)
-  STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/v1/healthcheck/)
+  #$(curl --output /dev/null --silent --head --fail http://localhost:7070/api/v1/healthcheck/)
+  STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:7070/api/v1/healthcheck/)
 
   if [ $STATUS -eq 200 ]; then
     return 0
