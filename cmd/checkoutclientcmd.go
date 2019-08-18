@@ -49,7 +49,7 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 	cmd := CheckoutCmd{
 		operations:   operations,
 		basketIds:    []string{operations[0].description},
-		productCodes: nil,
+		productCodes: []string{operations[0].description},
 		client:       cli.NewCheckoutClient(serverAddress, apiVersion),
 	}
 
@@ -168,7 +168,6 @@ func (c *CheckoutCmd) showBasketsList(requestType RequestType) {
 		} else {
 			fmt.Printf("Basket %v deleted!\n", c.basketIds[i])
 			c.basketIds = remove(c.basketIds, i)
-			fmt.Printf("%v\n", c.basketIds)
 		}
 
 	default:
@@ -177,20 +176,27 @@ func (c *CheckoutCmd) showBasketsList(requestType RequestType) {
 }
 
 func (c *CheckoutCmd) showProductLists(basketId string) {
-	prompt := promptui.Select{
-		Label: "Select Product",
-		Items: c.productCodes,
-	}
+	for {
+		prompt := promptui.Select{
+			Label: "Select Product",
+			Items: c.productCodes,
+		}
 
-	i, _, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
+		i, _, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
 
-	err = c.client.AddItem(basketId, c.productCodes[i])
-	if err != nil {
-		fmt.Printf("Error adding product: %v\n", err)
+		if i == 0 {
+			return
+		}
+
+		err = c.client.AddItem(basketId, c.productCodes[i])
+		if err != nil {
+			fmt.Printf("Error adding product: %v\n", err)
+		}
+		fmt.Printf("%v added to basket %v", c.productCodes[i], basketId)
 	}
 }
 
