@@ -6,20 +6,20 @@ WARN_COLOR=\033[33;01m
 .PHONY: dependencies build unit-test integration-test docker-it-up docker-down clear docker-rmi docker-rmv
 
 dependencies:
-	@go mod download
-	@go mod verify
+	@GO111MODULE=on go mod download
+	@GO111MODULE=on go mod verify
 
-build:
+build: dependencies
 	@echo "$(OK_COLOR)==> Building... $(NO_COLOR)"
 	@docker build . -t local/checkout-service
 
 unit-tests:
-	@go test -v -short ./...
+	@GO111MODULE=on go test -v -short ./...
 
 integration-tests: docker-it-up
 	@./waitForContainer.sh
 	@echo "$(OK_COLOR)==> Running ITs$(NO_COLOR)"
-	@go test -v ./internal/tests/integration/...; docker-compose -f ./internal/tests/docker-compose-it.yml down
+	@GO111MODULE=on go test -v ./internal/tests/integration/...; docker-compose -f ./internal/tests/docker-compose-it.yml down
 
 docker-it-up:
 	@docker-compose -f ./internal/tests/docker-compose-it.yml up -d

@@ -44,7 +44,7 @@ func (c *CheckoutServerStub) initializeRoutes(urlPath string) *mux.Router {
 	r.HandleFunc(fmt.Sprintf("%v/baskets/", urlPath), c.returnStub()).Methods("POST").Headers("Accept", "application/json")
 	r.HandleFunc(fmt.Sprintf("%v/baskets/{id}/items/", urlPath), c.returnStub()).Methods("POST").Headers("Content-Type", "application/json")
 	r.HandleFunc(fmt.Sprintf("%v/baskets/{id}", urlPath), c.returnStub()).Methods("GET").Queries("price", "").Headers("Accept", "application/json")
-	r.HandleFunc(fmt.Sprintf("%v/baskets/{id}/", urlPath), c.returnStub()).Methods("DELETE")
+	r.HandleFunc(fmt.Sprintf("%v/baskets/{id}", urlPath), c.returnStub()).Methods("DELETE")
 
 	return r
 }
@@ -69,17 +69,15 @@ func (c *CheckoutServerStub) returnStub() http.HandlerFunc {
 		if c.context.payload != nil {
 			w.Header().Set("Content-Type", "application/json")
 
-			if c.context.payload != nil {
-				jsonEncoded, err := json.Marshal(c.context.payload)
+			jsonEncoded, err := json.Marshal(c.context.payload)
 
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-				}
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 
-				_, err = w.Write(jsonEncoded)
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-				}
+			_, err = w.Write(jsonEncoded)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
 	}

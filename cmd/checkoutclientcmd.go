@@ -6,9 +6,35 @@ import (
 	"fmt"
 	"github.com/alfcope/checkouttest/cli"
 	"github.com/alfcope/checkouttest/model"
+	"github.com/chzyer/readline"
 	"github.com/manifoldco/promptui"
 	"io/ioutil"
+	"os"
 )
+
+// https://github.com/manifoldco/promptui/issues/49
+// stderr implements an io.WriteCloser that skips the terminal bell character
+// (ASCII code 7), and writes the rest to os.Stderr. It's used to replace
+// readline.Stdout, that is the package used by promptui to display the prompts.
+type stderr struct{}
+
+// Write implements an io.WriterCloser over os.Stderr, but it skips the terminal bell character.
+func (s *stderr) Write(b []byte) (int, error) {
+	if len(b) == 1 && b[0] == readline.CharBell {
+		return 0, nil
+	}
+	return os.Stderr.Write(b)
+}
+
+// Close implements an io.WriterCloser over os.Stderr.
+func (s *stderr) Close() error {
+	return os.Stderr.Close()
+}
+
+func init() {
+	readline.Stdout = &stderr{}
+}
+// -----------------
 
 type RequestType int
 
@@ -53,7 +79,7 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 		client:       cli.NewCheckoutClient(serverAddress, apiVersion),
 	}
 
-	err := cmd.loadProducts(fmt.Sprintf("%sproducts.json", productsPath))
+	err := cmd.loadProducts(fmt.Sprintf("%s%sproducts.json", productsPath, string(os.PathSeparator)))
 	if err != nil {
 		fmt.Printf("Error loading products: %v", err.Error())
 		return nil
@@ -63,7 +89,7 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 }
 
 func main() {
-	productsPath := flag.String("products", "./config/", "path to folder containing the available list of products file")
+	productsPath := flag.String("products", "./config", "path to folder containing the available list of products file")
 	serverAddress := flag.String("server", "http://localhost:7070", "server http address")
 	apiVersion := flag.Int("version", 1, "api version to request")
 
@@ -126,10 +152,10 @@ func (c *CheckoutCmd) showInitialScreen() bool {
 		id, err := c.client.AddBasket()
 		if err != nil {
 			fmt.Printf("Error adding basket: %v\n", err)
+		} else {
+			c.basketIds = append(c.basketIds, id)
+			fmt.Printf("Basket %v added\n", id)
 		}
-		c.basketIds = append(c.basketIds, id)
-		fmt.Printf("Basket %v added\n", id)
-
 	case 2:
 		c.showBasketsList(AddProduct)
 	case 3:
@@ -177,12 +203,12 @@ func (c *CheckoutCmd) showBasketsList(requestType RequestType) {
 
 func (c *CheckoutCmd) showProductLists(basketId string) {
 	for {
-		prompt := promptui.Select{
+		productListSelect := promptui.Select{
 			Label: "Select Product",
 			Items: c.productCodes,
 		}
 
-		i, _, err := prompt.Run()
+		i, _, err := productListSelect.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
