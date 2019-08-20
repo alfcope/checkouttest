@@ -101,7 +101,7 @@ func (suite *DatasourceTestSuite) TestInMemoryDatasource_GetBasket() {
 	// Not using the in-memory datasource from the suite to avoid concurrency errors
 	inMemoryDatasource := suite.initializeDataSource()
 	basket := model.NewBasket(uuid.New().String())
-	inMemoryDatasource.baskets = map[string]model.Basket{basket.Id: *basket}
+	inMemoryDatasource.baskets = map[string]*model.Basket{basket.Id: basket}
 
 	// When
 	b, err := inMemoryDatasource.GetBasket(basket.Id)
@@ -116,7 +116,7 @@ func (suite *DatasourceTestSuite) TestInMemoryDatasource_AddBasketDuplicated() {
 	// Not using the in-memory datasource from the suite to avoid concurrency errors
 	inMemoryDatasource := suite.initializeDataSource()
 	basket := model.NewBasket(uuid.New().String())
-	inMemoryDatasource.baskets = map[string]model.Basket{basket.Id: *basket}
+	inMemoryDatasource.baskets = map[string]*model.Basket{basket.Id: basket}
 
 	// When
 	err := inMemoryDatasource.AddBasket(basket)

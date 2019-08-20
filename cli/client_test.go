@@ -121,7 +121,7 @@ func (suite *CheckoutClientTestSuite) TestGetBasketPriceNotFoundError() {
 
 func (suite *CheckoutClientTestSuite) TestGetBasketPrice() {
 	// Given
-	suite.server.StubResponse(http.StatusOK, responses.PriceBasketResponse{Total:float64(6580)/100})
+	suite.server.StubResponse(http.StatusOK, responses.PriceBasketResponse{Total: float64(6580) / 100})
 
 	// When
 	price, err := suite.client.GetPrice(uuid.New().String())

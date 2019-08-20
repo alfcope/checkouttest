@@ -24,7 +24,7 @@ type InMemoryDatasource struct {
 	products   map[model.ProductCode]model.Product
 	promotions []model.Promotion
 
-	baskets    map[string]model.Basket
+	baskets    map[string]*model.Basket
 	basketsMux sync.RWMutex
 }
 
@@ -32,7 +32,7 @@ func InitInMemoryDatasource(config config.DataConfig) (*InMemoryDatasource, erro
 	ds := InMemoryDatasource{
 		products:   make(map[model.ProductCode]model.Product),
 		promotions: make([]model.Promotion, 0),
-		baskets:    make(map[string]model.Basket),
+		baskets:    make(map[string]*model.Basket),
 		basketsMux: sync.RWMutex{},
 	}
 
@@ -63,7 +63,7 @@ func (d *InMemoryDatasource) GetPromotions() []model.Promotion {
 
 func (d *InMemoryDatasource) GetBasket(id string) (*model.Basket, error) {
 	if basket, ok := d.baskets[id]; ok {
-		return &basket, nil
+		return basket, nil
 	}
 
 	return new(model.Basket), errors.NewBasketNotFound(id)
@@ -74,7 +74,7 @@ func (d *InMemoryDatasource) AddBasket(basket *model.Basket) error {
 	defer d.basketsMux.Unlock()
 
 	if _, ok := d.baskets[basket.Id]; !ok {
-		d.baskets[basket.Id] = *basket
+		d.baskets[basket.Id] = basket
 		return nil
 	}
 

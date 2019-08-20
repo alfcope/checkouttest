@@ -104,7 +104,7 @@ func (suite *CheckoutControllerTestSuite) TestAddNonExistingProduct() {
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
-	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode(productCode)}, )
+	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode(productCode)})
 	if err != nil {
 		suite.T().Errorf("Error encoding request: %v", err)
 	}
@@ -135,7 +135,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProductWrongPayload() {
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
-	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode("")}, )
+	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode("")})
 	if err != nil {
 		suite.T().Errorf("Error encoding request: %v", err)
 	}
@@ -170,7 +170,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProductToNonExistingBasket() {
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
-	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode(productCode)}, )
+	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: model.ProductCode(productCode)})
 	if err != nil {
 		suite.T().Errorf("Error encoding request: %v", err)
 	}
@@ -203,7 +203,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProduct() {
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
-	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: productCode}, )
+	err := json.NewEncoder(reqBodyBytes).Encode(requests.AddItemRequest{Code: productCode})
 	if err != nil {
 		suite.T().Errorf("Error encoding request: %v", err)
 	}
@@ -249,8 +249,8 @@ func (suite *CheckoutControllerTestSuite) TestGetPriceNonExistingBasket() {
 func (suite *CheckoutControllerTestSuite) TestGetPriceEmptyBasket() {
 	// Given
 	basketId := uuid.New().String()
-	promotions := []model.Promotion{model.NewBulkPromotion(map[model.ProductCode][]model.BulkOfferRule{"P1": {{3, 900},}}),
-		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{3, 1},}})}
+	promotions := []model.Promotion{model.NewBulkPromotion(map[model.ProductCode][]model.BulkOfferRule{"P1": {{Buy: 3, Price: 900}}}),
+		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{Buy: 3, Free: 1}}})}
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
 		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)

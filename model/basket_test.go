@@ -101,7 +101,7 @@ var basketPriceCases = []struct {
 	price  float64
 }{
 	{ // No active offers
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 3,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 3}},
 		[]Promotion{},
 		float64(1000*3) / 100,
 	}, { // Empty basket
@@ -109,42 +109,42 @@ var basketPriceCases = []struct {
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 820}}})},
 		float64(0),
 	}, { // Basket without any products in offer
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 3,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 3}},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{3, 820}}})},
 		float64(1000*3) / 100,
 	}, { // Basket with all products matching an offer
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 3,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 3}},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 820}}})},
 		float64(820*3) / 100,
 	}, { // Basket with products matching an offer several times
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 9,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 9}},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 820}}})},
 		float64(820*9) / 100,
 	}, { // Basket with products matching an offer several times plus extra number
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 7,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 7}},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 820}}})},
 		float64(820*7) / 100,
 	}, { // Basket with same products matching different offers
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000,}, 5,},},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1000}, 5}},
 		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 820}, {2, 930}}})},
 		float64(820*5) / 100,
 	}, { // Basket with different products matching different offers
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1030,}, 3,},
-			"P2": {Product{"P2", "Prod name 2", 1545,}, 3,},},
-		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 900},}}),
-			NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P2": {{3, 1},}})},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1030}, 3},
+			"P2": {Product{"P2", "Prod name 2", 1545}, 3}},
+		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 900}}}),
+			NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P2": {{3, 1}}})},
 		float64(900*3+1545*2) / 100,
 	}, { // Basket with different products matching same offer with rules for that products
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1030,}, 3,},
-			"P2": {Product{"P2", "Prod name 2", 1545,}, 4,},},
-		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 900},}, "P2": {{3, 1210}}}, ),},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 1030}, 3},
+			"P2": {Product{"P2", "Prod name 2", 1545}, 4}},
+		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P1": {{3, 900}}, "P2": {{3, 1210}}})},
 		float64(900*3+1210*4) / 100,
 	}, { // Basket with different products matching same offer with rules for that products
-		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 500,}, 3,},
-			"P2": {Product{"P2", "Prod name 2", 2000,}, 3,},
-			"P3": {Product{"P3", "Prod name 3", 750,}, 1,},},
-		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{3, 1900},}}),
-			NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{2, 1},}})},
+		map[ProductCode]Line{"P1": {Product{"P1", "Prod name 1", 500}, 3},
+			"P2": {Product{"P2", "Prod name 2", 2000}, 3},
+			"P3": {Product{"P3", "Prod name 3", 750}, 1}},
+		[]Promotion{NewBulkPromotion(map[ProductCode][]BulkOfferRule{"P2": {{3, 1900}}}),
+			NewFreeItemsPromotion(map[ProductCode][]FreeItemsOfferRule{"P1": {{2, 1}}})},
 		float64(500*2+1900*3+750) / 100,
 	},
 }

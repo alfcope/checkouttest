@@ -34,6 +34,7 @@ func (s *stderr) Close() error {
 func init() {
 	readline.Stdout = &stderr{}
 }
+
 // -----------------
 
 type RequestType int
@@ -53,8 +54,8 @@ type Operation struct {
 
 type CheckoutCmd struct {
 	operations   []Operation
-	basketIds    [] string
-	productCodes [] string
+	basketIds    []string
+	productCodes []string
 
 	client *cli.CheckoutClient
 }
@@ -70,7 +71,7 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 		GetPrice, "Get a basket price",
 	}, {
 		DeleteBasket, "Delete a basket",
-	},}
+	}}
 
 	cmd := CheckoutCmd{
 		operations:   operations,

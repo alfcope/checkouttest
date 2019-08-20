@@ -90,7 +90,7 @@ func (suite *CheckoutServiceTestSuite) TestAddProductToNonExistingBasket() {
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
 		mock.AnythingOfType("model.ProductCode")).Return(product, nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
+		mock.AnythingOfType("string")).Return(new(model.Basket), errors.NewBasketNotFound(basketId))
 
 	// When
 	err := suite.checkoutService.AddProduct(uuid.New().String(), productCode)
@@ -112,7 +112,7 @@ func (suite *CheckoutServiceTestSuite) TestAddProduct() {
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
 		mock.AnythingOfType("model.ProductCode")).Return(product, nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
+		mock.AnythingOfType("string")).Return(model.NewBasket(basketId), nil)
 
 	// When
 	err := suite.checkoutService.AddProduct(uuid.New().String(), productCode)
@@ -126,7 +126,7 @@ func (suite *CheckoutServiceTestSuite) TestGetPriceNonExistingBasket() {
 	basketId := uuid.New().String()
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
+		mock.AnythingOfType("string")).Return(new(model.Basket), errors.NewBasketNotFound(basketId))
 
 	// When
 	price, err := suite.checkoutService.GetBasketPrice(uuid.New().String())
@@ -143,11 +143,11 @@ func (suite *CheckoutServiceTestSuite) TestGetPriceNonExistingBasket() {
 func (suite *CheckoutServiceTestSuite) TestGetPriceEmptyBasket() {
 	// Given
 	basketId := uuid.New().String()
-	promotions := []model.Promotion{model.NewBulkPromotion(map[model.ProductCode][]model.BulkOfferRule{"P1": {{3, 900},}}),
-		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{3, 1},}})}
+	promotions := []model.Promotion{model.NewBulkPromotion(map[model.ProductCode][]model.BulkOfferRule{"P1": {{Buy: 3, Price: 900}}}),
+		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{Buy: 3, Free: 1}}})}
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
+		mock.AnythingOfType("string")).Return(model.NewBasket(basketId), nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetPromotions").Return(promotions)
 
 	// When

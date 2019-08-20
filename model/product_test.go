@@ -6,23 +6,23 @@ import (
 )
 
 var productCases = []struct {
-	product      Product
-	fieldErrors  map[string]string
+	product     Product
+	fieldErrors map[string]string
 }{
 	{ // Code is mandatory
-		product:      Product{Code: "", Name: "Product 1", Price: 1000,},
-		fieldErrors:  map[string]string{"code": "Invalid product code"},
+		product:     Product{Code: "", Name: "Product 1", Price: 1000},
+		fieldErrors: map[string]string{"code": "Invalid product code"},
 	}, { // Name is not mandatory
-		product:      Product{Code: "P1", Name: "", Price: 1000,},
-		fieldErrors:  nil,
+		product:     Product{Code: "P1", Name: "", Price: 1000},
+		fieldErrors: nil,
 	}, { // Price equals Zero
-		product:      Product{Code: "P1", Name: "", Price: 0,},
-		fieldErrors:  map[string]string{"price": "Invalid product price"},
+		product:     Product{Code: "P1", Name: "", Price: 0},
+		fieldErrors: map[string]string{"price": "Invalid product price"},
 	}, { // Price negative
-		product:      Product{Code: "P1", Name: "", Price: -1,},
-		fieldErrors:  map[string]string{"price": "Invalid product price"},
+		product:     Product{Code: "P1", Name: "", Price: -1},
+		fieldErrors: map[string]string{"price": "Invalid product price"},
 	}, { // Multiple errors
-		product: Product{Code: "", Name: "", Price: -1,},
+		product: Product{Code: "", Name: "", Price: -1},
 		fieldErrors: map[string]string{"code": "Invalid product code",
 			"price": "Invalid product price"},
 	},

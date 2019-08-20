@@ -42,8 +42,7 @@ func (d *DatasourceMock) GetBasket(id string) (*model.Basket, error) {
 		err = args.Get(1).(error)
 	}
 
-	basket := args.Get(0).(model.Basket)
-	return &basket, err
+	return args.Get(0).(*model.Basket), err
 }
 
 func (d *DatasourceMock) AddBasket(basket *model.Basket) error {

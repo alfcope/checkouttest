@@ -55,7 +55,7 @@ func (suite *CheckoutServiceClientITSuite) TestAddProductMultipleTimes() {
 		suite.T().Errorf("error creating basket: %v", err.Error())
 	}
 
-	for i :=0 ; i<5; i++ {
+	for i := 0; i < 5; i++ {
 		err = suite.client.AddItem(id, "VOUCHER")
 		if err != nil {
 			suite.T().Errorf("error adding product: %v", err.Error())
