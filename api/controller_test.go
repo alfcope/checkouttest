@@ -166,7 +166,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProductToNonExistingBasket() {
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
 		mock.AnythingOfType("model.ProductCode")).Return(*new(model.Product), nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
+		mock.AnythingOfType("string")).Return(new(model.Basket), errors.NewBasketNotFound(basketId))
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
@@ -199,7 +199,7 @@ func (suite *CheckoutControllerTestSuite) TestAddProduct() {
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetProduct",
 		mock.AnythingOfType("model.ProductCode")).Return(product, nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
+		mock.AnythingOfType("string")).Return(model.NewBasket(basketId), nil)
 
 	// When
 	reqBodyBytes := new(bytes.Buffer)
@@ -228,7 +228,7 @@ func (suite *CheckoutControllerTestSuite) TestGetPriceNonExistingBasket() {
 	basketId := uuid.New().String()
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*new(model.Basket), errors.NewBasketNotFound(basketId))
+		mock.AnythingOfType("string")).Return(new(model.Basket), errors.NewBasketNotFound(basketId))
 
 	// When
 	req, err := http.NewRequest("GET", fmt.Sprintf("/baskets/%s?price", basketId), nil)
@@ -253,7 +253,7 @@ func (suite *CheckoutControllerTestSuite) TestGetPriceEmptyBasket() {
 		model.NewFreeItemsPromotion(map[model.ProductCode][]model.FreeItemsOfferRule{"P2": {{Buy: 3, Free: 1}}})}
 
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetBasket",
-		mock.AnythingOfType("string")).Return(*model.NewBasket(basketId), nil)
+		mock.AnythingOfType("string")).Return(model.NewBasket(basketId), nil)
 	suite.datasourceMock.(*mocks.DatasourceMock).On("GetPromotions").Return(promotions)
 
 	// When
