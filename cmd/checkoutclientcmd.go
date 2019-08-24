@@ -49,7 +49,7 @@ const (
 
 type Operation struct {
 	requestType RequestType
-	description string
+	Description string
 }
 
 type CheckoutCmd struct {
@@ -75,8 +75,8 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 
 	cmd := CheckoutCmd{
 		operations:   operations,
-		basketIds:    []string{operations[0].description},
-		productCodes: []string{operations[0].description},
+		basketIds:    []string{operations[0].Description},
+		productCodes: []string{operations[0].Description},
 		client:       cli.NewCheckoutClient(serverAddress, apiVersion),
 	}
 
@@ -138,6 +138,11 @@ func (c *CheckoutCmd) showInitialScreen() bool {
 	prompt := promptui.Select{
 		Label: "Select Option",
 		Items: c.operations,
+		Templates: &promptui.SelectTemplates{
+			Label:    " {{ .Description }}?",
+			Active:    fmt.Sprintf("%s {{ .Description | underline }}", "\U00002794"),
+			Inactive:    "  {{ .Description }}",
+		},
 	}
 
 	i, _, err := prompt.Run()
