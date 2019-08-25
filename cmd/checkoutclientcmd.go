@@ -58,6 +58,16 @@ type CheckoutCmd struct {
 	productCodes []string
 
 	client *cli.CheckoutClient
+
+	// Basket user is working with
+	basketId string
+
+	waitExitSignal           chan struct{}
+	showMainMenuSignal       chan struct{}
+	addBasketSignal          chan struct{}
+	showBasketListSignal     chan RequestType
+	showProductListSignal    chan struct{}
+	addProductToBasketSignal chan string
 }
 
 func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *CheckoutCmd {
@@ -78,6 +88,13 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 		basketIds:    []string{operations[0].description},
 		productCodes: []string{operations[0].description},
 		client:       cli.NewCheckoutClient(serverAddress, apiVersion),
+
+		waitExitSignal:           make(chan struct{}),
+		showMainMenuSignal:       make(chan struct{}),
+		addBasketSignal:          make(chan struct{}),
+		showBasketListSignal:     make(chan RequestType),
+		showProductListSignal:    make(chan struct{}),
+		addProductToBasketSignal: make(chan string),
 	}
 
 	err := cmd.loadProducts(fmt.Sprintf("%s%sproducts.json", productsPath, string(os.PathSeparator)))
@@ -101,13 +118,13 @@ func main() {
 		return
 	}
 
-	for {
-		exit := cmd.showInitialScreen()
+	go cmd.showMainMenu()
+	go cmd.addBasket()
+	go cmd.showBasketsList()
+	go cmd.showProductLists()
+	go cmd.addProductToBasket()
 
-		if exit {
-			break
-		}
-	}
+	<-cmd.waitExitSignal
 }
 
 func (c *CheckoutCmd) loadProducts(filePath string) error {
@@ -133,97 +150,143 @@ func (c *CheckoutCmd) loadProducts(filePath string) error {
 	return nil
 }
 
-func (c *CheckoutCmd) showInitialScreen() bool {
+func (c *CheckoutCmd) showMainMenu() {
+	signal := struct{}{}
 
 	prompt := promptui.Select{
 		Label: "Select Option",
 		Items: c.operations,
 	}
 
-	i, _, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return false
+	for {
+		c.basketId = ""
+
+		i, _, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			i = -1
+		}
+
+		switch i {
+		case 0:
+			close(c.waitExitSignal)
+		case 1:
+			c.addBasketSignal <- signal
+		case 2:
+			c.showBasketListSignal <- AddProduct
+		case 3:
+			c.showBasketListSignal <- GetPrice
+		case 4:
+			c.showBasketListSignal <- DeleteBasket
+		}
+
+		<-c.showMainMenuSignal
+	}
+}
+
+func (c *CheckoutCmd) showBasketsList() {
+	signal := struct{}{}
+
+	prompt := promptui.Select{
+		Label: "Select Basket",
+		Items: c.basketIds,
 	}
 
-	switch i {
-	case 0:
-		return true
-	case 1:
+	for {
+		requestType := <-c.showBasketListSignal
+
+		prompt.Items = c.basketIds
+
+		i, _, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			continue
+		}
+
+		if i == 0 {
+			c.showMainMenuSignal <- signal
+			continue
+		}
+
+		switch requestType {
+		case GetPrice:
+			c.showPrice(c.basketIds[i])
+			c.showMainMenuSignal <- signal
+
+		case DeleteBasket:
+			err = c.client.DeleteBasket(c.basketIds[i])
+			if err != nil {
+				fmt.Printf("Error deleting basket %v: %v", c.basketIds[i], err.Error())
+			} else {
+				fmt.Printf("Basket %v deleted!\n", c.basketIds[i])
+				c.basketIds = remove(c.basketIds, i)
+			}
+			c.showMainMenuSignal <- signal
+
+		default:
+			c.basketId = c.basketIds[i]
+			c.showProductListSignal <- signal
+		}
+	}
+}
+
+func (c *CheckoutCmd) showProductLists() {
+	signal := struct{}{}
+
+	productListSelect := promptui.Select{
+		Label: "Select Product",
+		Items: c.productCodes,
+	}
+
+	for {
+		<-c.showProductListSignal
+
+		i, _, err := productListSelect.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			continue
+		}
+
+		if i == 0 {
+			c.showMainMenuSignal <- signal
+			continue
+		}
+
+		c.addProductToBasketSignal <- c.productCodes[i]
+	}
+}
+
+func (c *CheckoutCmd) addProductToBasket() {
+	signal := struct{}{}
+
+	for {
+		productCode := <-c.addProductToBasketSignal
+		err := c.client.AddItem(c.basketId, productCode)
+		if err != nil {
+			fmt.Printf("Error adding product: %v\n", err)
+		}
+		fmt.Printf("%v added to basket %v", productCode, c.basketId)
+
+		c.showProductListSignal <- signal
+	}
+}
+
+func (c *CheckoutCmd) addBasket() {
+	signal := struct{}{}
+
+	for {
+		<-c.addBasketSignal
+
 		id, err := c.client.AddBasket()
+
 		if err != nil {
 			fmt.Printf("Error adding basket: %v\n", err)
 		} else {
 			c.basketIds = append(c.basketIds, id)
 			fmt.Printf("Basket %v added\n", id)
 		}
-	case 2:
-		c.showBasketsList(AddProduct)
-	case 3:
-		c.showBasketsList(GetPrice)
-	case 4:
-		c.showBasketsList(DeleteBasket)
-	}
 
-	return false
-}
-
-func (c *CheckoutCmd) showBasketsList(requestType RequestType) {
-	prompt := promptui.Select{
-		Label: "Select Basket",
-		Items: c.basketIds,
-	}
-
-	i, _, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-
-	if i == 0 {
-		return
-	}
-
-	switch requestType {
-	case GetPrice:
-		c.showPrice(c.basketIds[i])
-
-	case DeleteBasket:
-		err = c.client.DeleteBasket(c.basketIds[i])
-		if err != nil {
-			fmt.Printf("Error deleting basket %v: %v", c.basketIds[i], err.Error())
-		} else {
-			fmt.Printf("Basket %v deleted!\n", c.basketIds[i])
-			c.basketIds = remove(c.basketIds, i)
-		}
-
-	default:
-		c.showProductLists(c.basketIds[i])
-	}
-}
-
-func (c *CheckoutCmd) showProductLists(basketId string) {
-	for {
-		productListSelect := promptui.Select{
-			Label: "Select Product",
-			Items: c.productCodes,
-		}
-
-		i, _, err := productListSelect.Run()
-		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
-			return
-		}
-
-		if i == 0 {
-			return
-		}
-
-		err = c.client.AddItem(basketId, c.productCodes[i])
-		if err != nil {
-			fmt.Printf("Error adding product: %v\n", err)
-		}
-		fmt.Printf("%v added to basket %v", c.productCodes[i], basketId)
+		c.showMainMenuSignal <- signal
 	}
 }
 
