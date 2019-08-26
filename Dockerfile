@@ -12,7 +12,7 @@ ENV GO111MODULE=on
 RUN go mod download
 RUN go mod verify
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /bin/checkout-service
+RUN cd cmd/checkoutserver && CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /bin/checkout-service
 
 # Create serviceuser
 RUN adduser -D -g '' serviceuser
