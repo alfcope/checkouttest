@@ -62,12 +62,12 @@ type CheckoutCmd struct {
 	// Basket user is working with
 	basketId string
 
-	waitExitSignal           chan struct{}
-	showMainMenuSignal       chan struct{}
-	addBasketSignal          chan struct{}
-	showBasketListSignal     chan RequestType
-	showProductListSignal    chan struct{}
-	addProductToBasketSignal chan string
+	waitExitSignal            chan struct{}
+	showMainMenuHandler       chan struct{}
+	addBasketHandler          chan struct{}
+	showBasketListHandler     chan RequestType
+	showProductListHandler    chan struct{}
+	addProductToBasketHandler chan string
 }
 
 func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *CheckoutCmd {
@@ -89,12 +89,12 @@ func NewCheckoutCmd(productsPath, serverAddress string, apiVersion int) *Checkou
 		productCodes: []string{operations[0].Description},
 		client:       cli.NewCheckoutClient(serverAddress, apiVersion),
 
-		waitExitSignal:           make(chan struct{}),
-		showMainMenuSignal:       make(chan struct{}),
-		addBasketSignal:          make(chan struct{}),
-		showBasketListSignal:     make(chan RequestType),
-		showProductListSignal:    make(chan struct{}),
-		addProductToBasketSignal: make(chan string),
+		waitExitSignal:            make(chan struct{}),
+		showMainMenuHandler:       make(chan struct{}),
+		addBasketHandler:          make(chan struct{}),
+		showBasketListHandler:     make(chan RequestType),
+		showProductListHandler:    make(chan struct{}),
+		addProductToBasketHandler: make(chan string),
 	}
 
 	err := cmd.loadProducts(fmt.Sprintf("%s%sproducts.json", productsPath, string(os.PathSeparator)))
@@ -158,8 +158,8 @@ func (c *CheckoutCmd) showMainMenu() {
 		Items: c.operations,
 		Templates: &promptui.SelectTemplates{
 			Label:    " {{ .Description }}?",
-			Active:    fmt.Sprintf("%s {{ .Description | underline }}", "\U00002794"),
-			Inactive:    "  {{ .Description }}",
+			Active:   fmt.Sprintf("%s {{ .Description | underline }}", "\U00002794"),
+			Inactive: "  {{ .Description }}",
 		},
 	}
 
@@ -176,16 +176,16 @@ func (c *CheckoutCmd) showMainMenu() {
 		case 0:
 			close(c.waitExitSignal)
 		case 1:
-			c.addBasketSignal <- signal
+			c.addBasketHandler <- signal
 		case 2:
-			c.showBasketListSignal <- AddProduct
+			c.showBasketListHandler <- AddProduct
 		case 3:
-			c.showBasketListSignal <- GetPrice
+			c.showBasketListHandler <- GetPrice
 		case 4:
-			c.showBasketListSignal <- DeleteBasket
+			c.showBasketListHandler <- DeleteBasket
 		}
 
-		<-c.showMainMenuSignal
+		<-c.showMainMenuHandler
 	}
 }
 
@@ -195,10 +195,15 @@ func (c *CheckoutCmd) showBasketsList() {
 	prompt := promptui.Select{
 		Label: "Select Basket",
 		Items: c.basketIds,
+		Templates: &promptui.SelectTemplates{
+			Label:    " {{ . }}?",
+			Active:   fmt.Sprintf("%s {{ . | underline }}", "\U00002794"),
+			Inactive: "  {{ . }}",
+		},
 	}
 
 	for {
-		requestType := <-c.showBasketListSignal
+		requestType := <-c.showBasketListHandler
 
 		prompt.Items = c.basketIds
 
@@ -209,14 +214,20 @@ func (c *CheckoutCmd) showBasketsList() {
 		}
 
 		if i == 0 {
-			c.showMainMenuSignal <- signal
+			c.showMainMenuHandler <- signal
 			continue
 		}
 
 		switch requestType {
 		case GetPrice:
-			c.showPrice(c.basketIds[i])
-			c.showMainMenuSignal <- signal
+			price, err := c.client.GetPrice(c.basketIds[i])
+			if err != nil {
+				fmt.Printf("Error getting price: %v\n", err)
+			} else {
+				fmt.Printf("Basket %v price: %.2f\n", c.basketIds[i], price)
+			}
+
+			c.showMainMenuHandler <- signal
 
 		case DeleteBasket:
 			err = c.client.DeleteBasket(c.basketIds[i])
@@ -226,11 +237,11 @@ func (c *CheckoutCmd) showBasketsList() {
 				fmt.Printf("Basket %v deleted!\n", c.basketIds[i])
 				c.basketIds = remove(c.basketIds, i)
 			}
-			c.showMainMenuSignal <- signal
+			c.showMainMenuHandler <- signal
 
 		default:
 			c.basketId = c.basketIds[i]
-			c.showProductListSignal <- signal
+			c.showProductListHandler <- signal
 		}
 	}
 }
@@ -241,10 +252,15 @@ func (c *CheckoutCmd) showProductLists() {
 	productListSelect := promptui.Select{
 		Label: "Select Product",
 		Items: c.productCodes,
+		Templates: &promptui.SelectTemplates{
+			Label:    " {{ . }}?",
+			Active:   fmt.Sprintf("%s {{ . | underline }}", "\U00002794"),
+			Inactive: "  {{ . }}",
+		},
 	}
 
 	for {
-		<-c.showProductListSignal
+		<-c.showProductListHandler
 
 		i, _, err := productListSelect.Run()
 		if err != nil {
@@ -253,11 +269,11 @@ func (c *CheckoutCmd) showProductLists() {
 		}
 
 		if i == 0 {
-			c.showMainMenuSignal <- signal
+			c.showMainMenuHandler <- signal
 			continue
 		}
 
-		c.addProductToBasketSignal <- c.productCodes[i]
+		c.addProductToBasketHandler <- c.productCodes[i]
 	}
 }
 
@@ -265,14 +281,14 @@ func (c *CheckoutCmd) addProductToBasket() {
 	signal := struct{}{}
 
 	for {
-		productCode := <-c.addProductToBasketSignal
+		productCode := <-c.addProductToBasketHandler
 		err := c.client.AddItem(c.basketId, productCode)
 		if err != nil {
 			fmt.Printf("Error adding product: %v\n", err)
 		}
 		fmt.Printf("%v added to basket %v", productCode, c.basketId)
 
-		c.showProductListSignal <- signal
+		c.showProductListHandler <- signal
 	}
 }
 
@@ -280,7 +296,7 @@ func (c *CheckoutCmd) addBasket() {
 	signal := struct{}{}
 
 	for {
-		<-c.addBasketSignal
+		<-c.addBasketHandler
 
 		id, err := c.client.AddBasket()
 
@@ -291,16 +307,8 @@ func (c *CheckoutCmd) addBasket() {
 			fmt.Printf("Basket %v added\n", id)
 		}
 
-		c.showMainMenuSignal <- signal
+		c.showMainMenuHandler <- signal
 	}
-}
-
-func (c *CheckoutCmd) showPrice(basketId string) {
-	price, err := c.client.GetPrice(basketId)
-	if err != nil {
-		fmt.Printf("Error getting price: %v\n", err)
-	}
-	fmt.Printf("Basket %v price: %.2f\n", basketId, price)
 }
 
 func remove(slice []string, i int) []string {
